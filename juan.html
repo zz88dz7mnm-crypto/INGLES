@@ -40,12 +40,12 @@
 </head>
 <body>
   <h1>¡Tocá para sumarle un punto a Juan!</h1>
-  <div id="puntos">0</div>
+  <div id="puntos">65</div>
   <p>puntos de Juan</p>
   <button id="reiniciar">Reiniciar</button>
 
 <script>
-  let puntos = 0;
+  let puntos = 65;
   const el = document.getElementById("puntos");
 
   document.body.addEventListener("click", () => {
@@ -57,7 +57,7 @@
 
   document.getElementById("reiniciar").addEventListener("click", (e) => {
     e.stopPropagation();
-    puntos = 0;
+    puntos = 65;
     el.textContent = puntos;
   });
 </script>
