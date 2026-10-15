@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ordenamiento por Inserción</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --text: #1d2433;
+    --muted: #5f6b7f;
+    --border: #d8dde8;
+    --cell: #ffffff;
+    --sorted: #c9f2d6;
+    --sorted-border: #2e9e5b;
+    --j: #2f6fec;
+    --k: #e8590c;
+    --y: #8e44ad;
+    --y-bg: #f3e8fb;
+    --hl: #fff3b0;
+    --hl-border: #e0b400;
+    --true: #2e9e5b;
+    --false: #d63333;
+    --code-bg: #1f2430;
+    --code-text: #e6e9ef;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  main {
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 900px) {
+    main { grid-template-columns: 1.25fr 1fr; }
+    .full { grid-column: 1 / -1; }
+  }
+  h1 { font-size: 1.5rem; margin: 0; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-width: 0;
+  }
+  .panel h2 {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+  /* Entrada */
+  .input-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .input-row label { font-weight: 600; }
+  input[type=text] {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    flex: 1 1 160px;
+    min-width: 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .error { color: var(--false); font-weight: 600; width: 100%; min-height: 1.2em; font-size: .95rem; }
+  button {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:hover:not(:disabled) { border-color: var(--j); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--j); color: #fff; border-color: var(--j); }
+  button.play { background: var(--true); color: #fff; border-color: var(--true); }
+  button.play.pausa { background: var(--k); border-color: var(--k); }
+
+  /* Lista */
+  .array-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .array {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    min-width: max-content;
+    margin: 0 auto;
+    padding: 4px 4px 0;
+  }
+  .slot { display: flex; flex-direction: column; align-items: center; width: 60px; }
+  .marks { height: 54px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; }
+  .mark {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-weight: 800;
+    font-size: .95rem;
+    padding: 0 8px;
+    border-radius: 6px;
+    color: #fff;
+    line-height: 1.5;
+  }
+  .mark.j { background: var(--j); }
+  .mark.k { background: var(--k); }
+  .mark.hole { background: var(--y); }
+  .arrow { font-size: .8rem; line-height: 1; color: var(--muted); }
+  .cell {
+    width: 60px; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem;
+    font-weight: 700;
+    border: 3px solid #aab3c5;
+    border-radius: 12px;
+    background: var(--cell);
+    transition: background .25s, border-color .25s, transform .25s;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .cell.sorted { background: var(--sorted); border-color: var(--sorted-border); }
+  .cell.is-j { box-shadow: 0 0 0 3px var(--j); }
+  .cell.is-k { border-color: var(--k); border-width: 4px; }
+  .cell.changed { background: var(--hl); border-color: var(--hl-border); transform: translateY(-4px); }
+  .cell.placed { background: var(--y-bg); border-color: var(--y); transform: scale(1.1); }
+  .cell.ghost {
+    border-style: dashed;
+    background: transparent;
+    color: var(--muted);
+    font-size: .8rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .slot.outside { visibility: hidden; }
+  .slot.outside.show { visibility: visible; }
+  .idx { margin-top: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--muted); font-size: 1rem; }
+  .slot.outside .idx { color: var(--false); font-weight: 700; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: .9rem; color: var(--muted); justify-content: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 16px; height: 16px; border-radius: 4px; border: 2px solid; display: inline-block; }
+
+  /* y */
+  .y-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 14px; justify-content: center; }
+  .ybox {
+    display: flex; align-items: center; gap: 10px;
+    border: 3px solid var(--y);
+    background: var(--y-bg);
+    border-radius: 14px;
+    padding: 6px 14px;
+  }
+  .ybox .lbl { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.3rem; font-weight: 800; color: var(--y); }
+  .ybox .val {
+    width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 3px solid var(--y); border-radius: 10px;
+    font-size: 1.7rem; font-weight: 700; font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  /* Mensaje */
+  .msg {
+    font-size: 1.2rem;
+    background: #eef3ff;
+    border-left: 6px solid var(--j);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-height: 3.2em;
+  }
+  .msg.ok { border-left-color: var(--true); background: #eaf8ef; }
+  .msg.no { border-left-color: var(--false); background: #fdecec; }
+  .msg.place { border-left-color: var(--y); background: var(--y-bg); }
+  .msg b { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .step-count { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+
+  /* Código */
+  pre.code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 12px;
+    padding: 10px 0;
+    margin: 0;
+    font-size: 1.02rem;
+    overflow-x: auto;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .line { display: block; padding: 3px 14px 3px 8px; white-space: pre; border-left: 5px solid transparent; }
+  .line .ln { color: #6b7385; display: inline-block; width: 1.6em; text-align: right; margin-right: 12px; user-select: none; }
+  .line.active { background: #4a4012; border-left-color: #ffd43b; color: #fff; }
+  .line.active.t { background: #17432a; border-left-color: #51cf66; }
+  .line.active.f { background: #4d1c1c; border-left-color: #ff6b6b; }
+  .badge { margin-left: 10px; font-size: .8rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; }
+  .badge.t { background: #51cf66; color: #0c2a16; }
+  .badge.f { background: #ff6b6b; color: #2a0c0c; }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .nm { color: #f78c6c; }
+
+  /* Variables */
+  .vars { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+  .var {
+    border: 2px solid var(--border); border-radius: 10px; padding: 6px 8px; text-align: center;
+  }
+  .var .name { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 800; }
+  .var .v { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.5rem; font-weight: 700; }
+  .var.j .name { color: var(--j); } .var.k .name { color: var(--k); } .var.y .name { color: var(--y); }
+  .var.neg .v { color: var(--false); }
+  .var.upd { background: var(--hl); border-color: var(--hl-border); }
+  .listline {
+    margin-top: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.15rem;
+    border: 2px solid var(--border); border-radius: 10px; padding: 8px 10px; overflow-x: auto; white-space: nowrap;
+  }
+
+  /* Controles */
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+  .controls button { flex: 1 1 130px; }
+  .speed { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+  .speed input { width: 220px; max-width: 60vw; }
+  .hint { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 6px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .slot, .cell { width: 46px; }
+    .cell { height: 46px; font-size: 1.3rem; }
+    .array { gap: 5px; }
+    .vars { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    pre.code { font-size: .8rem; }
+    .line { padding-left: 4px; padding-right: 8px; }
+    .msg { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel full">
+    <h1>Ordenamiento por Inserción, paso a paso</h1>
+    <div class="input-row">
+      <label for="entrada">Lista:</label>
+      <input type="text" id="entrada" value="2, 3, 1, 4" inputmode="text" autocomplete="off">
+      <button class="primary" id="cargar">Cargar lista</button>
+      <div class="error" id="error"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>La lista</h2>
+    <div class="array-wrap"><div class="array" id="array"></div></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--sorted);border-color:var(--sorted-border)"></i>parte ya ordenada</span>
+      <span><i class="sw" style="background:#fff;border-color:var(--j)"></i>j: el que se inserta</span>
+      <span><i class="sw" style="background:#fff;border-color:var(--k)"></i>k: el que se compara</span>
+      <span><i class="sw" style="background:var(--hl);border-color:var(--hl-border)"></i>recién cambiado</span>
+    </div>
+    <div class="y-row">
+      <div class="ybox"><span class="lbl">y =</span><span class="val" id="yval">–</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Código (Python)</h2>
+    <pre class="code" id="code"></pre>
+  </section>
+
+  <section class="panel full">
+    <h2>¿Qué está pasando?</h2>
+    <div class="msg" id="msg"></div>
+    <div class="step-count" id="stepcount"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Variables</h2>
+    <div class="vars">
+      <div class="var j" id="var-j"><div class="name">j</div><div class="v">–</div></div>
+      <div class="var k" id="var-k"><div class="name">k</div><div class="v">–</div></div>
+      <div class="var y" id="var-y"><div class="name">y</div><div class="v">–</div></div>
+      <div class="var" id="var-n"><div class="name">n</div><div class="v">–</div></div>
+    </div>
+    <div class="listline" id="listline"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Controles</h2>
+    <div class="controls">
+      <button id="prev">◀ Paso anterior</button>
+      <button id="next" class="primary">Siguiente paso ▶</button>
+      <button id="play" class="play">▶ Reproducir</button>
+      <button id="reset">↺ Reiniciar</button>
+      <div class="speed">
+        <label for="vel">Velocidad:</label>
+        <span>lenta</span>
+        <input type="range" id="vel" min="1" max="10" value="5">
+        <span>rápida</span>
+      </div>
+    </div>
+    <div class="hint">En compu también podés usar las flechas ← → del teclado y la barra espaciadora.</div>
+  </section>
+</main>
+
+<script>
+(function () {
+  // Líneas del código; el índice es el número de línea - 1.
+  var CODE = [
+    '<span class="fn">n</span> = <span class="fn">len</span>(lista)',
+    '<span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, n):',
+    '    y = lista[j]',
+    '    k = j - <span class="nm">1</span>',
+    '    <span class="kw">while</span> k &gt;= <span class="nm">0</span> <span class="kw">and</span> lista[k] &gt; y:',
+    '        lista[k+<span class="nm">1</span>] = lista[k]',
+    '        k -= <span class="nm">1</span>',
+    '    lista[k+<span class="nm">1</span>] = y'
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var steps = [];
+  var cur = 0;
+  var timer = null;
+
+  function fmt(a) { return '[' + a.join(', ') + ']'; }
+
+  // Genera todos los pasos ejecutando el algoritmo y guardando una "foto" por línea.
+  function buildSteps(input) {
+    var lista = input.slice();
+    var out = [];
+    var j = null, k = null, y = null, n = null;
+
+    function snap(o) {
+      out.push(Object.assign({
+        line: -1, j: j, k: k, y: y, n: n, lista: lista.slice(),
+        changed: -1, placed: -1, cond: null, sortedUpTo: -1, msg: '', kind: '', upd: []
+      }, o));
+    }
+
+    snap({ msg: 'Lista cargada: <b>' + fmt(lista) + '</b>. Apretá <b>Siguiente paso</b> para empezar.' });
+
+    n = lista.length;
+    snap({ line: 0, upd: ['n'], sortedUpTo: n > 0 ? 0 : -1,
+      msg: 'n = len(lista) → la lista tiene <b>' + n + '</b> elementos, así que <b>n = ' + n + '</b>.' +
+           (n > 0 ? ' Un solo elemento (el de la posición 0) ya está "ordenado" por sí mismo.' : '') });
+
+    for (j = 1; j < n; j++) {
+
+      snap({ line: 1, upd: ['j'], sortedUpTo: j - 1,
+        msg: 'Empieza la vuelta con <b>j = ' + j + '</b>. Vamos a insertar el elemento de la posición ' + j +
+             ' dentro de la parte ordenada (posiciones 0 a ' + (j - 1) + ').' });
+
+      y = lista[j];
+      snap({ line: 2, upd: ['y'], sortedUpTo: j - 1,
+        msg: 'y = lista[' + j + '] → guardo el <b>' + y + '</b> en y, para no perderlo cuando desplace cosas.' });
+
+      k = j - 1;
+      snap({ line: 3, upd: ['k'], sortedUpTo: j - 1,
+        msg: 'k = j - 1 → <b>k = ' + k + '</b>. Empiezo comparando con el vecino de la izquierda.' });
+
+      while (true) {
+        if (k < 0) {
+          snap({ line: 4, cond: false, kind: 'no', sortedUpTo: j - 1,
+            msg: 'k vale <b>-1</b>. ¿k &gt;= 0? -1 &gt;= 0 → <b>no</b>. La condición es falsa y el while termina. ' +
+                 '(Python ni siquiera mira lista[k] > y: con un "and", si la primera parte es falsa, ya no evalúa la segunda.) ' +
+                 'Llegué al principio de la lista: no hay nada más a la izquierda.' });
+          break;
+        }
+        var cmp = lista[k] > y;
+        if (!cmp) {
+          snap({ line: 4, cond: false, kind: 'no', sortedUpTo: j - 1,
+            msg: 'k vale ' + k + '. ¿k &gt;= 0? sí. ¿lista[' + k + '] &gt; y? ' + lista[k] + ' &gt; ' + y +
+                 ' → <b>no</b>. La condición es falsa: el while termina. El ' + y + ' va justo a la derecha del ' + lista[k] + '.' });
+          break;
+        }
+        snap({ line: 4, cond: true, kind: 'ok', sortedUpTo: j - 1,
+          msg: 'k vale ' + k + '. ¿k &gt;= 0? sí. ¿lista[' + k + '] &gt; y? ' + lista[k] + ' &gt; ' + y +
+               ' → <b>sí</b>, entro al while: hay que desplazar el ' + lista[k] + ' a la derecha.' });
+
+        lista[k + 1] = lista[k];
+        snap({ line: 5, changed: k + 1, upd: ['lista'], sortedUpTo: j - 1,
+          msg: 'lista[' + (k + 1) + '] = lista[' + k + '] → copio el <b>' + lista[k] + '</b> una posición a la derecha (a la posición ' + (k + 1) +
+               '). Ahora el ' + lista[k] + ' aparece repetido, pero tranquilo: el valor que se pisó está guardado en y = ' + y + '.' });
+
+        k -= 1;
+        snap({ line: 6, upd: ['k'], sortedUpTo: j - 1,
+          msg: 'k -= 1 → <b>k = ' + k + '</b>.' + (k < 0 ? ' ¡Ojo! k quedó en -1: ya no queda ningún elemento a la izquierda para comparar.' : ' Paso a comparar con el siguiente de la izquierda.') });
+      }
+
+      lista[k + 1] = y;
+      snap({ line: 7, placed: k + 1, upd: ['lista'], sortedUpTo: j, kind: 'place',
+        msg: 'lista[k+1] = y → como k = ' + k + ', k+1 = <b>' + (k + 1) + '</b>. Coloco y = <b>' + y + '</b> en la posición <b>' + (k + 1) + '</b>.' +
+             (k + 1 === j ? ' (Es la misma posición donde ya estaba: no hubo que moverlo.)' : '') +
+             ' Lista: <b>' + fmt(lista) + '</b>. Ahora las posiciones 0 a ' + j + ' están ordenadas.' });
+    }
+
+    snap({ line: 1, j: n > 1 ? j - 1 : null, k: k, y: y, sortedUpTo: n - 1, kind: 'ok',
+      msg: (n > 1 ? 'El for no tiene más valores de j (range(1, ' + n + ') llega hasta ' + (n - 1) + '). ' : '') +
+           '¡Terminó! La lista ordenada es <b>' + fmt(lista) + '</b>.' });
+    return out;
+  }
+
+  function renderCode(s) {
+    var html = '';
+    for (var i = 0; i < CODE.length; i++) {
+      var cls = 'line';
+      var badge = '';
+      if (i === s.line) {
+        cls += ' active';
+        if (s.cond === true) { cls += ' t'; badge = '<span class="badge t">VERDADERO</span>'; }
+        if (s.cond === false) { cls += ' f'; badge = '<span class="badge f">FALSO</span>'; }
+      }
+      html += '<span class="' + cls + '"><span class="ln">' + (i + 1) + '</span>' + CODE[i] + badge + '</span>';
+    }
+    $('code').innerHTML = html;
+  }
+
+  function slotHTML(cls, cellCls, content, idx, marks) {
+    return '<div class="slot ' + cls + '"><div class="marks">' + marks + '</div>' +
+      '<div class="cell ' + cellCls + '">' + content + '</div><div class="idx">' + idx + '</div></div>';
+  }
+
+  function renderArray(s) {
+    var html = '';
+    var kOut = s.k === -1 && s.line >= 3 && s.line !== 1;
+    var kMarks = kOut ? '<span class="mark k">k</span><span class="arrow">▼</span>' : '';
+    html += slotHTML('outside' + (kOut ? ' show' : ''), 'ghost', 'fuera de<br>la lista', '-1', kMarks);
+
+    var active = s.line >= 2 && s.line <= 7;
+    for (var i = 0; i < s.lista.length; i++) {
+      var cell = [];
+      var marks = '';
+      if (i <= s.sortedUpTo) cell.push('sorted');
+      if (active && s.j === i) { cell.push('is-j'); marks += '<span class="mark j">j</span>'; }
+      if (active && s.k === i && s.line >= 3) { cell.push('is-k'); marks += '<span class="mark k">k</span>'; }
+      if (s.line === 7 && s.placed === i) marks += '<span class="mark hole">y</span>';
+      if (marks) marks += '<span class="arrow">▼</span>';
+      if (s.changed === i) cell.push('changed');
+      if (s.placed === i) cell.push('placed');
+      html += slotHTML('', cell.join(' '), s.lista[i], i, marks);
+    }
+    $('array').innerHTML = html;
+  }
+
+  function setVar(id, val, upd) {
+    var el = $(id);
+    el.querySelector('.v').textContent = (val === null || val === undefined) ? '–' : val;
+    el.classList.toggle('neg', val === -1);
+    el.classList.toggle('upd', !!upd);
+  }
+
+  function render() {
+    var s = steps[cur];
+    renderCode(s);
+    renderArray(s);
+    $('yval').textContent = s.y === null ? '–' : s.y;
+    setVar('var-j', s.j, s.upd.indexOf('j') >= 0);
+    setVar('var-k', s.k, s.upd.indexOf('k') >= 0);
+    setVar('var-y', s.y, s.upd.indexOf('y') >= 0);
+    setVar('var-n', s.n, s.upd.indexOf('n') >= 0);
+    var ll = $('listline');
+    ll.innerHTML = 'lista = ' + fmt(s.lista);
+    ll.style.background = s.upd.indexOf('lista') >= 0 ? 'var(--hl)' : '';
+    var m = $('msg');
+    m.className = 'msg' + (s.kind ? ' ' + s.kind : '');
+    m.innerHTML = s.msg;
+    $('stepcount').textContent = 'Paso ' + cur + ' de ' + (steps.length - 1);
+    $('prev').disabled = cur === 0;
+    $('next').disabled = cur === steps.length - 1;
+  }
+
+  function go(i) {
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    render();
+    if (cur === steps.length - 1) stop();
+  }
+
+  function delay() {
+    // 1 (lenta) → 2400 ms ... 10 (rápida) → 250 ms
+    var v = +$('vel').value;
+    return Math.round(2400 - (v - 1) * (2150 / 9));
+  }
+  function tick() {
+    if (cur >= steps.length - 1) { stop(); return; }
+    go(cur + 1);
+    if (timer !== null) timer = setTimeout(tick, delay());
+  }
+  function play() {
+    if (cur >= steps.length - 1) go(0);
+    $('play').textContent = '⏸ Pausa';
+    $('play').classList.add('pausa');
+    timer = setTimeout(tick, Math.min(delay(), 600));
+  }
+  function stop() {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
+    $('play').textContent = '▶ Reproducir';
+    $('play').classList.remove('pausa');
+  }
+
+  function parse(text) {
+    var parts = text.split(/[\s,;]+/).filter(function (p) { return p !== ''; });
+    if (parts.length === 0) throw 'Escribí al menos un número.';
+    if (parts.length > 12) throw 'Usá como máximo 12 números para que se vea bien.';
+    return parts.map(function (p) {
+      if (!/^-?\d+(\.\d+)?$/.test(p)) throw '"' + p + '" no es un número.';
+      return Number(p);
+    });
+  }
+
+  function load() {
+    stop();
+    try {
+      var nums = parse($('entrada').value);
+      $('error').textContent = '';
+      steps = buildSteps(nums);
+      go(0);
+    } catch (e) {
+      $('error').textContent = e;
+    }
+  }
+
+  $('cargar').onclick = load;
+  $('entrada').addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+  $('next').onclick = function () { stop(); go(cur + 1); };
+  $('prev').onclick = function () { stop(); go(cur - 1); };
+  $('reset').onclick = function () { stop(); go(0); };
+  $('play').onclick = function () { timer === null ? play() : stop(); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+    if (e.key === 'ArrowRight') { stop(); go(cur + 1); }
+    else if (e.key === 'ArrowLeft') { stop(); go(cur - 1); }
+    else if (e.key === ' ') { e.preventDefault(); timer === null ? play() : stop(); }
+  });
+
+  window.__insercion = { buildSteps: buildSteps }; // para pruebas
+  load();
+})();
+</script>
+</body>
+</html>
