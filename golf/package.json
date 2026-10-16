@@ -1,0 +1,14 @@
+{
+  "name": "golf-palo-celu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Golf 2D: la compu es la pantalla y el celular es el palo (sensores de movimiento).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "selfsigned": "^5.5.0",
+    "ws": "^8.22.0"
+  }
+}

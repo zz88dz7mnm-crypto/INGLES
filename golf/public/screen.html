@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf — Pantalla</title>
+<style>
+  :root {
+    --panel: rgba(10, 28, 18, 0.82);
+    --text: #eef6ef;
+    --muted: #a9c7b2;
+    --accent: #ffd447;
+    --ok: #5ee08a;
+    --bad: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #2d5a27; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .panel { position: fixed; background: var(--panel); border-radius: 14px; padding: 12px 16px; backdrop-filter: blur(4px); }
+  #hud { top: 16px; left: 16px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px 22px; }
+  #hud span { font-size: 12px; color: var(--muted); display: block; }
+  #hud b { font-size: 22px; }
+
+  #clubBox { top: 16px; right: 16px; text-align: right; min-width: 200px; }
+  #clubBox .club { font-size: 26px; font-weight: 700; }
+  #clubBox .sub { font-size: 13px; color: var(--muted); }
+  #wind { margin-top: 8px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 14px; }
+  #windArrow { width: 28px; height: 28px; display: inline-block; transition: transform .3s; }
+
+  #conn { bottom: 16px; left: 16px; display: flex; gap: 14px; align-items: center; max-width: 520px; }
+  #qr { background: #fff; padding: 6px; border-radius: 8px; line-height: 0; }
+  #qr:empty { display: none; }
+  #conn .url { font-family: ui-monospace, monospace; font-size: 15px; color: var(--accent); word-break: break-all; }
+  #conn .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--bad); margin-right: 6px; }
+  .dot.on { background: var(--ok); }
+
+  #meterBox { right: 16px; bottom: 16px; width: 70px; height: 260px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  #meterBox span { font-size: 11px; color: var(--muted); }
+  #meter { flex: 1; width: 22px; background: rgba(0,0,0,.4); border-radius: 11px; position: relative; overflow: hidden; }
+  #meterFill { position: absolute; left: 0; right: 0; bottom: 0; height: 0%; background: linear-gradient(0deg, var(--ok), var(--accent), var(--bad)); }
+  #meterPeak { position: absolute; left: 0; right: 0; height: 3px; background: #fff; bottom: 0; }
+  #phase { font-size: 12px; font-weight: 700; text-align: center; }
+
+  #toast { left: 50%; top: 18%; transform: translateX(-50%); text-align: center; font-size: 30px; font-weight: 800; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+
+  #shot { left: 50%; bottom: 16px; transform: translateX(-50%); text-align: center; min-width: 360px; display: none; }
+  #shot .big { font-size: 24px; font-weight: 700; }
+  #shot .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 16px; margin-top: 6px; }
+  #shot .grid span { font-size: 11px; color: var(--muted); display: block; }
+  #shot .grid b { font-size: 18px; }
+
+  #card { left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 24px 28px; display: none; text-align: center; }
+  #card h2 { margin: 0 0 12px; }
+  #card table { border-collapse: collapse; margin: 0 auto 16px; }
+  #card td, #card th { padding: 6px 12px; border-bottom: 1px solid rgba(255,255,255,.15); }
+  #card button { font-size: 18px; padding: 10px 20px; border-radius: 10px; border: 0; background: var(--accent); font-weight: 700; cursor: pointer; }
+
+  #help { top: 140px; left: 16px; font-size: 12px; color: var(--muted); max-width: 300px; line-height: 1.5; }
+  #help kbd { background: rgba(255,255,255,.12); border-radius: 4px; padding: 0 5px; color: var(--text); }
+  #settings { margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+  #settings input { width: 110px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" class="panel">
+  <div><span>Hoyo</span><b id="hHole">1</b></div>
+  <div><span>Par</span><b id="hPar">4</b></div>
+  <div><span>Golpes</span><b id="hStrokes">0</b></div>
+  <div><span>Al hoyo</span><b id="hDist">–</b></div>
+  <div><span>Lie</span><b id="hLie">Tee</b></div>
+  <div><span>Total</span><b id="hTotal">E</b></div>
+</div>
+
+<div id="help" class="panel">
+  Sin celu: <kbd>←</kbd><kbd>→</kbd> apuntar · <kbd>↑</kbd><kbd>↓</kbd> palo ·
+  mantené <kbd>Espacio</kbd> y soltá para pegar.
+  <div id="settings">
+    Sensibilidad
+    <input type="range" id="sens" min="600" max="2400" step="50" value="1400">
+    <b id="sensVal">1400</b>°/s
+  </div>
+</div>
+
+<div id="clubBox" class="panel">
+  <div class="club" id="cName">Driver</div>
+  <div class="sub" id="cSub">hasta 230 m</div>
+  <div id="wind"><span id="windTxt">Viento 0 km/h</span>
+    <svg id="windArrow" viewBox="0 0 24 24"><path d="M12 2 L19 14 H14 V22 H10 V14 H5 Z" fill="#fff"/></svg>
+  </div>
+</div>
+
+<div id="conn" class="panel">
+  <div id="qr"></div>
+  <div>
+    <div><span class="dot" id="dot"></span><span id="connTxt">Ningún palo conectado</span></div>
+    <div class="url" id="url">…</div>
+    <div class="hint">Abrí esto en el celu (mismo Wi-Fi) y aceptá la advertencia del certificado.</div>
+  </div>
+</div>
+
+<div id="meterBox" class="panel">
+  <span>Velocidad</span>
+  <div id="meter"><div id="meterFill"></div><div id="meterPeak"></div></div>
+  <div id="phase">—</div>
+</div>
+
+<div id="shot" class="panel">
+  <div class="big" id="sTitle">—</div>
+  <div class="grid">
+    <div><span>Vel. cabeza</span><b id="sSpeed">–</b></div>
+    <div><span>Potencia</span><b id="sPower">–</b></div>
+    <div><span>Cara</span><b id="sFace">–</b></div>
+  </div>
+</div>
+
+<div id="toast" class="panel"></div>
+
+<div id="card" class="panel">
+  <h2>Tarjeta</h2>
+  <table id="cardTable"></table>
+  <button id="again">Jugar de nuevo</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

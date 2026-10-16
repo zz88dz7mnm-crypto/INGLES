@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0f2a1a">
+<title>Palo de golf</title>
+<style>
+  :root {
+    --bg: #0f2a1a;
+    --panel: #173a25;
+    --text: #eef6ef;
+    --muted: #9fbfa8;
+    --accent: #ffd447;
+    --ok: #5ee08a;
+    --bad: #ff6b6b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    overflow: hidden;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 14px; color: var(--muted);
+  }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--bad); margin-right: 6px; }
+  .dot.on { background: var(--ok); }
+  main { flex: 1; display: flex; flex-direction: column; padding: 0 16px 16px; gap: 12px; min-height: 0; }
+  .info {
+    background: var(--panel); border-radius: 14px; padding: 12px 14px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center;
+  }
+  .info b { display: block; font-size: 20px; color: var(--text); }
+  .info span { font-size: 12px; color: var(--muted); }
+  #state {
+    flex: 1; min-height: 0;
+    border-radius: 18px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 16px; gap: 10px;
+    background: var(--panel);
+    transition: background .2s;
+  }
+  #state.ready { background: #1f6b3a; }
+  #state.swinging { background: #8a6d00; }
+  #state.wait { background: #2a3340; }
+  #state h1 { margin: 0; font-size: 30px; line-height: 1.15; }
+  #state p { margin: 0; font-size: 16px; color: #d7e8da; max-width: 28em; }
+  #meter { width: 100%; height: 14px; border-radius: 7px; background: rgba(0,0,0,.35); overflow: hidden; }
+  #meterFill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--ok), var(--accent), var(--bad)); transition: width .05s linear; }
+  .row { display: flex; gap: 10px; }
+  button {
+    flex: 1; border: 0; border-radius: 14px; padding: 16px 8px;
+    font-size: 18px; font-weight: 600; color: var(--text); background: var(--panel);
+  }
+  button:active { filter: brightness(1.3); }
+  button.primary { background: var(--accent); color: #2a2100; font-size: 22px; padding: 22px 8px; }
+  button.small { font-size: 15px; padding: 12px 6px; }
+  .hidden { display: none !important; }
+  label.toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); justify-content: center; }
+  #log { font-size: 12px; color: var(--muted); text-align: center; min-height: 1em; }
+</style>
+</head>
+<body>
+<header>
+  <div><span class="dot" id="dot"></span><span id="conn">Conectando…</span></div>
+  <div id="speed">—</div>
+</header>
+
+<main>
+  <div class="info">
+    <div><span>Hoyo</span><b id="hole">–</b></div>
+    <div><span>Palo</span><b id="club">–</b></div>
+    <div><span>Al hoyo</span><b id="dist">–</b></div>
+  </div>
+
+  <div id="state">
+    <h1 id="stateTitle">Golf con el celu</h1>
+    <p id="stateText">Agarrá el celu con las dos manos como si fuera el grip del palo, con la parte de arriba del celu apuntando al piso.</p>
+    <div id="meter"><div id="meterFill"></div></div>
+  </div>
+
+  <button id="enable" class="primary">Activar sensores</button>
+
+  <div id="controls" class="hidden">
+    <div class="row">
+      <button id="aimL" class="small">◀ Apuntar</button>
+      <button id="aimR" class="small">Apuntar ▶</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="clubPrev" class="small">Palo −</button>
+      <button id="clubNext" class="small">Palo +</button>
+    </div>
+    <label class="toggle" style="margin-top:10px"><input type="checkbox" id="invert"> Soy zurdo / invertir efecto</label>
+  </div>
+  <div id="log"></div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---- Parámetros del detector de swing (grados/segundo) ----------------
+  const STILL_W = 30;        // por debajo de esto el celu está "quieto"
+  const STILL_MS = 450;      // tiempo quieto para considerar que estás en posición
+  const START_W = 140;       // arranca un swing cuando se supera esto
+  const MIN_PEAK = 160;      // un swing con pico menor no cuenta
+  const MAX_SWING_MS = 4500; // por si nunca termina
+
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    dot: $('dot'), conn: $('conn'), speed: $('speed'),
+    hole: $('hole'), club: $('club'), dist: $('dist'),
+    state: $('state'), title: $('stateTitle'), text: $('stateText'),
+    meter: $('meterFill'), enable: $('enable'), controls: $('controls'),
+    invert: $('invert'), log: $('log'),
+  };
+
+  try { ui.invert.checked = localStorage.getItem('golf-invert') === '1'; } catch {}
+  ui.invert.addEventListener('change', () => {
+    try { localStorage.setItem('golf-invert', ui.invert.checked ? '1' : '0'); } catch {}
+  });
+
+  // ---- WebSocket ----------------------------------------------------------
+  let ws = null;
+  let screenStatus = null;
+
+  function connect() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}/ws`);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ t: 'hello', role: 'club' }));
+      ui.dot.classList.add('on');
+      ui.conn.textContent = 'Conectado';
+    };
+    ws.onclose = () => {
+      ui.dot.classList.remove('on');
+      ui.conn.textContent = 'Reconectando…';
+      setTimeout(connect, 1000);
+    };
+    ws.onmessage = (ev) => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch { return; }
+      if (msg.t === 'status') onStatus(msg);
+      else if (msg.t === 'result') ui.log.textContent = msg.text;
+    };
+  }
+  function send(msg) {
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+  }
+  connect();
+
+  function onStatus(s) {
+    screenStatus = s;
+    ui.hole.textContent = s.hole ? `${s.hole} · par ${s.par}` : '–';
+    ui.club.textContent = s.club || '–';
+    ui.dist.textContent = s.dist != null ? `${s.dist} m` : '–';
+    if (!sensorsOn) return;
+    if (s.canSwing && (mode === 'wait' || mode === 'idle')) setMode('address');
+    if (!s.canSwing && (mode === 'address' || mode === 'ready')) setMode('wait');
+    if (s.finished) setMode('wait', '¡Ronda terminada!', s.message || 'Mirá la tarjeta en la pantalla.');
+  }
+
+  // ---- Matemática de cuaterniones ----------------------------------------
+  // Integramos el giróscopo para saber cuánto giró el celu desde la posición
+  // de "address" hasta el impacto.
+  function qMul(a, b) {
+    return {
+      w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+      x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+      y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+      z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+    };
+  }
+  function qNorm(q) {
+    const n = Math.hypot(q.w, q.x, q.y, q.z) || 1;
+    return { w: q.w / n, x: q.x / n, y: q.y / n, z: q.z / n };
+  }
+  // Giro alrededor del eje largo del celu (eje Y) = cuánto se abrió o cerró
+  // la "cara del palo" (descomposición swing-twist).
+  function twistAroundY(q) {
+    let a = 2 * Math.atan2(q.y, q.w) * 180 / Math.PI;
+    while (a > 180) a -= 360;
+    while (a < -180) a += 360;
+    return a;
+  }
+
+  // ---- Detector de swing ---------------------------------------------------
+  let sensorsOn = false;
+  let mode = 'idle'; // idle | wait | address | ready | swinging
+  let stillSince = 0;
+  let q = { w: 1, x: 0, y: 0, z: 0 };
+  let lastT = 0;
+  let swing = null;
+  let lastLiveSent = 0;
+
+  function setMode(m, title, text) {
+    mode = m;
+    ui.state.className = { ready: 'ready', swinging: 'swinging', wait: 'wait' }[m] || '';
+    const texts = {
+      wait: ['Esperá…', 'La pelota todavía se está moviendo.'],
+      address: ['Ponete en posición', 'Quedate quieto con el celu apuntando a la pelota.'],
+      ready: ['¡Pegale!', 'Hacé el swing. Cuanto más rápido, más lejos.'],
+      swinging: ['…', ''],
+    };
+    const [t, p] = texts[m] || ['', ''];
+    ui.title.textContent = title || t;
+    ui.text.textContent = text != null ? text : p;
+    send({ t: 'phase', mode: m });
+    if (m === 'ready' && navigator.vibrate) navigator.vibrate(40);
+  }
+
+  function onMotion(e) {
+    const r = e.rotationRate;
+    if (!r || r.alpha == null) return;
+    const now = performance.now();
+    let dt = lastT ? (now - lastT) / 1000 : 0.016;
+    lastT = now;
+    if (dt > 0.1) dt = 0.016;
+
+    // rotationRate: alpha = eje Z, beta = eje X, gamma = eje Y (grados/seg)
+    const wx = r.beta || 0, wy = r.gamma || 0, wz = r.alpha || 0;
+    const w = Math.hypot(wx, wy, wz);
+
+    ui.speed.textContent = `${Math.round(w)}°/s`;
+    ui.meter.style.width = `${Math.min(100, (w / 1500) * 100)}%`;
+    if (now - lastLiveSent > 60 && (mode === 'ready' || mode === 'swinging')) {
+      lastLiveSent = now;
+      send({ t: 'live', w: Math.round(w) });
+    }
+
+    if (mode === 'address') {
+      if (w < STILL_W) {
+        if (!stillSince) stillSince = now;
+        if (now - stillSince > STILL_MS) { q = { w: 1, x: 0, y: 0, z: 0 }; setMode('ready'); }
+      } else {
+        stillSince = 0;
+      }
+      return;
+    }
+
+    if (mode === 'ready') {
+      if (w < START_W) {
+        // Mientras estés quieto, esta es la posición de referencia (address).
+        q = { w: 1, x: 0, y: 0, z: 0 };
+        return;
+      }
+      // El primer giro fuerte es el backswing: guardamos su eje para reconocer
+      // el downswing, que gira en sentido contrario.
+      swing = {
+        t0: now, peak: 0, peakT: now, twistAtPeak: 0, maxAcc: 0, movedT: now,
+        u: { x: wx / w, y: wy / w, z: wz / w },
+      };
+      setMode('swinging', '¡Swing!', '');
+    }
+
+    if (mode === 'swinging') {
+      // Integrar la rotación (en el marco del celu).
+      const rad = Math.PI / 180;
+      const ang = w * rad * dt;
+      if (ang > 0) {
+        const s = Math.sin(ang / 2) / (w || 1);
+        const dq = { w: Math.cos(ang / 2), x: wx * s, y: wy * s, z: wz * s };
+        q = qNorm(qMul(q, dq));
+      }
+      const acc = e.acceleration;
+      if (acc && acc.x != null) {
+        swing.maxAcc = Math.max(swing.maxAcc, Math.hypot(acc.x, acc.y, acc.z));
+      }
+      // Solo cuenta el pico del downswing (giro opuesto al backswing).
+      const proj = wx * swing.u.x + wy * swing.u.y + wz * swing.u.z;
+      if (proj < -0.5 * w && w > swing.peak) {
+        swing.peak = w;
+        swing.peakT = now;
+        swing.twistAtPeak = twistAroundY(q);
+      }
+      if (w > STILL_W * 1.5) swing.movedT = now;
+      const done =
+        (swing.peak >= MIN_PEAK && now - swing.peakT > 200 && w < swing.peak * 0.35) ||
+        now - swing.movedT > 800 ||
+        now - swing.t0 > MAX_SWING_MS;
+      if (done) finishSwing();
+    }
+  }
+
+  function finishSwing() {
+    const s = swing;
+    swing = null;
+    if (s.peak < MIN_PEAK) {
+      setMode('address', 'Muy suave', 'Eso no contó como golpe. Volvé a ponerte en posición.');
+      stillSince = 0;
+      return;
+    }
+    let face = s.twistAtPeak;
+    if (ui.invert.checked) face = -face;
+    send({
+      t: 'swing',
+      peak: Math.round(s.peak),      // velocidad angular máxima (°/s)
+      face: Math.round(face * 10) / 10, // + = cara abierta (derecha)
+      acc: Math.round(s.maxAcc * 10) / 10,
+    });
+    if (navigator.vibrate) navigator.vibrate([20, 30, 60]);
+    setMode('wait', '¡Golpe!', `Pico: ${Math.round(s.peak)}°/s`);
+  }
+
+  // ---- Activar sensores (iOS pide permiso) ---------------------------------
+  let wakeLock = null;
+  async function keepAwake() {
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && sensorsOn) keepAwake();
+  });
+
+  ui.enable.addEventListener('click', async () => {
+    if (!window.isSecureContext) {
+      ui.log.textContent = 'Necesitás abrir esta página por https:// para usar los sensores.';
+      return;
+    }
+    try {
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        const res = await DeviceMotionEvent.requestPermission();
+        if (res !== 'granted') {
+          ui.log.textContent = 'Sin permiso para los sensores de movimiento.';
+          return;
+        }
+      }
+    } catch (err) {
+      ui.log.textContent = 'Error pidiendo permiso: ' + err.message;
+      return;
+    }
+    window.addEventListener('devicemotion', onMotion);
+    sensorsOn = true;
+    keepAwake();
+    ui.enable.classList.add('hidden');
+    ui.controls.classList.remove('hidden');
+    setTimeout(() => {
+      if (!lastT) ui.log.textContent = 'No llegan datos del giróscopo. ¿Tu celu tiene giróscopo?';
+    }, 1500);
+    if (screenStatus && screenStatus.canSwing) setMode('address');
+    else setMode('wait', 'Conectado', 'Esperando a la pantalla…');
+  });
+
+  // ---- Botones de apuntar / cambiar palo -----------------------------------
+  function holdButton(el, fn) {
+    let timer = null;
+    const start = (e) => {
+      e.preventDefault();
+      fn();
+      clearInterval(timer);
+      timer = setInterval(fn, 90);
+    };
+    const stop = () => { clearInterval(timer); timer = null; };
+    el.addEventListener('pointerdown', start);
+    el.addEventListener('pointerup', stop);
+    el.addEventListener('pointerleave', stop);
+    el.addEventListener('pointercancel', stop);
+  }
+  holdButton($('aimL'), () => send({ t: 'aim', d: -1 }));
+  holdButton($('aimR'), () => send({ t: 'aim', d: 1 }));
+  $('clubPrev').addEventListener('click', () => send({ t: 'club', d: -1 }));
+  $('clubNext').addEventListener('click', () => send({ t: 'club', d: 1 }));
+})();
+</script>
+</body>
+</html>
