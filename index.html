@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Chat Espejo</title>
 <style>
-/* Chat de una sola conversación, con los lados invertidos: lo tuyo a la izquierda, lo del otro a la derecha */
+/* Chat privado de Juan y Marti, con los lados invertidos: lo tuyo a la izquierda, lo del otro a la derecha */
 :root{
   --wall:#e9edf2; --dot:#d5dce5; --top:#ffffff; --bar:#f3f5f8; --field:#ffffff;
   --ink:#111b21; --muted:#667781; --line:#dbe1e8;
@@ -29,7 +29,7 @@
 html,body{height:100%;margin:0}
 body{background:var(--wall);color:var(--ink);font:15px/1.4 var(--font);overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 svg{display:block}
 #app{height:100%;height:100dvh;display:flex;flex-direction:column;max-width:960px;margin:0 auto;background:var(--wall);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.4px);background-size:22px 22px;position:relative}
 
@@ -43,9 +43,8 @@ svg{display:block}
 .icon{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;flex:none}
 .icon:hover{background:var(--bar)}
 .icon svg{width:24px;height:24px;fill:currentColor}
-.banner{display:flex;gap:10px;align-items:center;padding:10px 14px;background:var(--bar);border-bottom:1px solid var(--line);font-size:14px}
+.banner{display:flex;gap:10px;align-items:center;padding:8px 6px 8px 14px;background:var(--bar);border-bottom:1px solid var(--line);font-size:14px}
 .banner span{flex:1;min-width:0}
-.banner .btn{flex:none;padding:7px 12px}
 
 /* mensajes */
 .scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:10px max(12px,4%) 14px;-webkit-overflow-scrolling:touch}
@@ -85,7 +84,6 @@ svg{display:block}
 .field textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.35;resize:none;max-height:124px;padding:12px 0;outline:none}
 .round{width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
 .round svg{width:24px;height:24px;fill:currentColor}
-.round:disabled{opacity:.5}
 .composer .icon{width:46px;height:46px}
 .rec{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:var(--field);border-radius:23px;min-height:46px;padding:0 6px 0 4px;border:1px solid var(--line)}
 #app.mirror .rec{flex-direction:row-reverse;padding:0 4px 0 14px}
@@ -96,23 +94,20 @@ svg{display:block}
 #app.mirror .rec span{text-align:right}
 @keyframes blink{50%{opacity:.25}}
 
-/* primera vez y ajustes */
-.setup{margin:auto 0;align-self:center;width:100%;max-width:440px;background:var(--top);border-radius:16px;padding:20px;display:grid;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.setup h1{margin:0;font-size:22px}
+/* elegir quién sos y ajustes */
+.setup{margin:auto 0;align-self:center;width:100%;max-width:420px;background:var(--top);border-radius:16px;padding:22px 20px;display:grid;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.setup h1{margin:0;font-size:24px;text-align:center}
 .setup p,.panel p{margin:0;color:var(--muted);font-size:14px}
-.group{display:grid;gap:8px}
-.group label,.lbl{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.code{font:700 26px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.14em;text-align:center;padding:12px;border:2px dashed var(--line);border-radius:12px;user-select:all;overflow-wrap:anywhere}
+.setup p{text-align:center}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.person{display:grid;justify-items:center;gap:10px;padding:20px 8px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);font-weight:800;font-size:17px}
+.person:hover,.person:focus-visible{border-color:var(--accent);outline:none}
+.person .avatar{width:68px;height:68px;font-size:30px}
+.group{display:grid;gap:10px}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 .btn{flex:1 1 auto;border:0;border-radius:10px;padding:11px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
 .btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
 .btn.danger{background:transparent;color:var(--rec);border:1.5px solid var(--rec)}
-.txt{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);min-width:0}
-.inline{display:flex;gap:8px}
-.inline .txt{flex:1}
-.inline .btn{flex:none}
-.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
-.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .switch{display:flex;align-items:center;gap:12px;cursor:pointer}
 .switch input{width:20px;height:20px;accent-color:var(--accent);flex:none}
 dialog{border:0;border-radius:16px;padding:0;width:min(440px,calc(100% - 24px));max-height:calc(100dvh - 24px);background:var(--top);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.35)}
@@ -141,28 +136,16 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
     </button>
   </header>
-  <div class="banner" id="banner" hidden><span id="bannerText"></span><button class="btn" id="bannerAct" type="button" hidden></button><button class="icon" id="bannerClose" type="button" aria-label="Cerrar aviso"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></div>
+  <div class="banner" id="banner" hidden><span id="bannerText"></span><button class="icon" id="bannerClose" type="button" aria-label="Cerrar aviso"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></div>
 
   <div class="scroll" id="scroll">
     <section class="setup" id="setup" hidden>
-      <div class="group">
-        <h1>Chat Espejo</h1>
-        <p>Un chat para dos personas. Tus mensajes aparecen a la <strong>izquierda</strong> y los de la otra persona a la <strong>derecha</strong>. Los dos tienen que abrir esta misma página.</p>
+      <h1>¿Quién sos?</h1>
+      <div class="pick">
+        <button class="person" type="button" data-who="juan"><span class="avatar">J</span>Soy Juan</button>
+        <button class="person" type="button" data-who="marti"><span class="avatar">M</span>Soy Marti</button>
       </div>
-      <div class="group">
-        <label for="nameA">Tu nombre</label>
-        <input class="txt js-name" id="nameA" maxlength="40" placeholder="Cómo te va a ver la otra persona" autocomplete="nickname">
-      </div>
-      <div class="group">
-        <span class="lbl">Tu código</span>
-        <div class="code js-code">--------</div>
-        <div class="btnrow"><button class="btn js-share" type="button">Mandar mi link</button><button class="btn sec js-copy" type="button">Copiar código</button></div>
-      </div>
-      <div class="or">o</div>
-      <form class="group js-connect">
-        <label for="connA">¿Te pasaron un código o un link?</label>
-        <div class="inline"><input class="txt" id="connA" placeholder="Pegalo acá" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" type="submit">Conectar</button></div>
-      </form>
+      <p>Este chat es solo para Juan y Marti. Elegís una vez y queda guardado en este celular. Tus mensajes van a la izquierda y los del otro a la derecha.</p>
     </section>
     <div class="msgs" id="msgs"></div>
   </div>
@@ -184,25 +167,14 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <dialog id="settings">
   <div class="panel">
     <header><h2>Ajustes</h2><button class="icon" id="closeSettings" type="button" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></header>
-    <div class="group">
-      <label for="nameB">Tu nombre</label>
-      <input class="txt js-name" id="nameB" maxlength="40" placeholder="Cómo te va a ver la otra persona" autocomplete="nickname">
-    </div>
     <label class="switch"><input type="checkbox" id="mirror" checked> <span>Mis mensajes a la izquierda y los botones de este lado (modo espejo)</span></label>
     <hr>
     <div class="group">
-      <span class="lbl">Tu código</span>
-      <div class="code js-code">--------</div>
-      <div class="btnrow"><button class="btn js-share" type="button">Mandar mi link</button><button class="btn sec js-copy" type="button">Copiar código</button></div>
+      <p id="whoInfo"></p>
+      <div class="btnrow"><button class="btn sec" id="btnSwitch" type="button">Cambiar</button></div>
     </div>
-    <form class="group js-connect">
-      <label for="connB">Conectar con otra persona</label>
-      <div class="inline"><input class="txt" id="connB" placeholder="Código o link" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" type="submit">Conectar</button></div>
-      <p id="contactInfo"></p>
-    </form>
-    <hr>
     <div class="btnrow"><button class="btn danger" id="btnClear" type="button">Borrar los mensajes</button></div>
-    <p>Los mensajes se guardan solo en este celular. Viajan directo entre los dos teléfonos y llegan cuando los dos tienen la página abierta; si la otra persona no está, quedan con el relojito y se mandan solos cuando entra.</p>
+    <p>Los mensajes se guardan solo en este celular. Viajan directo entre los dos teléfonos y llegan cuando los dos tienen la página abierta; si el otro no está, quedan con el relojito y se mandan solos cuando entra.</p>
   </div>
 </dialog>
 
@@ -214,7 +186,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const PREFIX="chatespejo-", ALPHA="abcdefghijkmnpqrstuvwxyz23456789";
+const PEOPLE={juan:"Juan",marti:"Marti"};
+const ROOM="chatespejo-k3v9q2-"; // cada persona tiene un ID fijo: ROOM+juan y ROOM+marti
 const ICON={
   mic:'<svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10.2 15 12 3.4 13.8z"/></svg>',
@@ -224,30 +197,26 @@ const ICON={
   delivered:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Entregado"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   read:'<svg class="tk read" viewBox="0 0 18 12" role="img" aria-label="Leído"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
-const randCode=()=>{const r=crypto.getRandomValues(new Uint8Array(8));let s="";for(const x of r)s+=ALPHA[x%ALPHA.length];return s};
-const uid=()=>Date.now().toString(36)+randCode();
-const pretty=c=>c.slice(0,4)+"-"+c.slice(4);
-function parseCode(s){const c=String(s||"").trim().toLowerCase().split("#").pop().replace(/[^a-z0-9]/g,"");return /^[a-z0-9]{8}$/.test(c)?c:null}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
 
 // ---------- estado ----------
-let me=LS.get("me",null);
-if(!me||!parseCode(me.id)){me={id:randCode(),name:""};LS.set("me",me)}
-let contact=LS.get("contact",null);
+let who=LS.get("who",null);if(!PEOPLE[who])who=null;
+const other=()=>who==="juan"?"marti":"juan";
+const otherName=()=>PEOPLE[other()];
 let settings=Object.assign({mirror:true},LS.get("settings",{}));
 const msgs=[], byId=new Map(), els=new Map(), urls=new Map();
-let peer=null, conn=null, pendingOut=null, typingUntil=0, typingRec=false, lastTypingSent=0, unseen=0, actx=null;
-const myLink=()=>location.href.split("#")[0]+"#"+me.id;
+let peer=null, conn=null, pendingOut=null, typingUntil=0, typingRec=false, lastTypingSent=0, unseen=0, actx=null, switchArm=0, clearArm=0;
 
-// ---------- almacenamiento (IndexedDB, con respaldo en memoria) ----------
+// ---------- almacenamiento: una base por persona, para no mezclar historiales ----------
 const db=(()=>{let p;
-  const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("chat-espejo",1);r.onupgradeneeded=()=>r.result.createObjectStore("msgs",{keyPath:"id"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
+  const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("chat-espejo-"+who,1);r.onupgradeneeded=()=>r.result.createObjectStore("msgs",{keyPath:"id"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
   const run=(mode,fn)=>open().then(d=>new Promise((res,rej)=>{const t=d.transaction("msgs",mode),q=fn(t.objectStore("msgs"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
   return{all:()=>run("readonly",s=>s.getAll()),put:m=>run("readwrite",s=>s.put(m)).catch(()=>{}),clear:()=>run("readwrite",s=>s.clear()).catch(()=>{})}})();
 
 // ---------- utilidades de interfaz ----------
 let toastTimer;
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.hidden=true,3200)}
-function banner(text,actLabel,act){$("#bannerText").textContent=text;const b=$("#bannerAct");b.hidden=!actLabel;if(actLabel){b.textContent=actLabel;b.onclick=()=>{$("#banner").hidden=true;act()}}$("#banner").hidden=false}
+function banner(text){$("#bannerText").textContent=text;$("#banner").hidden=false}
 $("#bannerClose").onclick=()=>$("#banner").hidden=true;
 const fmtTime=ts=>new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
 const fmtDur=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
@@ -290,9 +259,9 @@ function voicePlayer(m){
   w.append(btn,track,time);return w}
 function renderAll(){
   const box=$("#msgs");box.innerHTML="";els.clear();
-  $("#setup").hidden=!!contact;$("#composer").hidden=!contact;
-  if(!contact){updateHeader();return}
-  box.append(el("div","note",settings.mirror?"Tus mensajes van a la izquierda y los de la otra persona a la derecha.":"Tus mensajes van a la derecha."));
+  $("#setup").hidden=!!who;$("#composer").hidden=!who;
+  if(!who){updateHeader();return}
+  box.append(el("div","note",settings.mirror?`Tus mensajes van a la izquierda y los de ${otherName()} a la derecha.`:`Tus mensajes van a la derecha y los de ${otherName()} a la izquierda.`));
   if(!msgs.length)box.append(el("div","note","Todavía no hay mensajes. Mandá el primero."));
   let prev=null;for(const m of msgs){if(!prev||dayKey(prev.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));box.append(bubble(m,prev));prev=m}
   updateHeader();toBottom()}
@@ -310,55 +279,56 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#viewer").hidden=
 
 // ---------- cabecera ----------
 function updateHeader(){
-  const name=contact?(contact.name||"Contacto "+pretty(contact.id)):"Chat Espejo";
-  $("#cname").textContent=name;$("#avatar").textContent=contact?(contact.name||"?").trim().charAt(0)||"?":"?";
+  $("#cname").textContent=who?otherName():"Chat Espejo";
+  $("#avatar").textContent=who?otherName().charAt(0):"?";
   const st=$("#cstatus");let t,on=false;
-  if(!contact)t="Conectá con alguien para empezar";
+  if(!who)t="Elegí quién sos para empezar";
   else if(typeof Peer==="undefined")t="Sin conexión a internet. Recargá la página.";
   else if(!peer||!peer.open)t="Conectando…";
-  else if(conn&&conn.open){on=true;t=Date.now()<typingUntil?(typingRec?"grabando audio…":"escribiendo…"):"en línea"}
+  else if(isOpen()){on=true;t=Date.now()<typingUntil?(typingRec?"grabando audio…":"escribiendo…"):"en línea"}
   else t="desconectado · tus mensajes se mandan cuando entre";
   st.textContent=t;st.classList.toggle("on",on);
-  $("#contactInfo").textContent=contact?"Ahora estás conectado con "+name+" ("+pretty(contact.id)+"). Si conectás con otro código, se borran estos mensajes.":"";
-  $$(".js-code").forEach(e=>e.textContent=pretty(me.id))}
+  if(who){$("#whoInfo").textContent=`En este celular sos ${PEOPLE[who]}.`;if(!switchArm)$("#btnSwitch").textContent=`Cambiar: soy ${otherName()}`}}
 
 // ---------- conexión directa entre los dos celulares (PeerJS / WebRTC) ----------
 const isOpen=()=>!!(conn&&conn.open);
 function startPeer(){
-  if(typeof Peer==="undefined"){updateHeader();return}
-  peer=new Peer(PREFIX+me.id,Object.assign({debug:0},window.CHAT_PEER_OPTIONS||{}));
-  peer.on("open",()=>{updateHeader();tryConnect()});
-  peer.on("connection",c=>setupConn(c,false));
-  peer.on("disconnected",()=>{updateHeader();setTimeout(()=>{if(peer&&!peer.destroyed&&peer.disconnected)peer.reconnect()},2500)});
-  peer.on("error",err=>{
+  if(typeof Peer==="undefined"||!who)return;
+  const p=new Peer(ROOM+who,Object.assign({debug:0},window.CHAT_PEER_OPTIONS||{}));peer=p;
+  p.on("open",()=>{if(p!==peer)return;$("#banner").hidden=true;updateHeader();tryConnect()});
+  p.on("connection",c=>{if(p===peer)setupConn(c,false);else c.close()});
+  p.on("disconnected",()=>{if(p===peer)updateHeader()});
+  p.on("error",err=>{if(p!==peer)return;
     if(err.type==="peer-unavailable"){if(pendingOut){try{pendingOut.c.close()}catch(e){}pendingOut=null}return}
-    if(err.type==="unavailable-id"){banner("Este chat ya está abierto en otra pestaña. Cerrala y recargá esta.");return}
-    updateHeader()});
-  setInterval(tryConnect,5000);
-  // latido: si la otra persona no responde en 12 s, se la marca como desconectada
-  setInterval(()=>{if(!isOpen())return;if(Date.now()-conn.lastSeen>12000){const c=conn;conn=null;try{c.close()}catch(e){}updateHeader();tryConnect();return}
-    try{conn.send({t:"ping"})}catch(e){}},4000)}
-window.addEventListener("pagehide",()=>{if(isOpen())try{conn.send({t:"bye"})}catch(e){}});
+    if(err.type==="unavailable-id")banner(`${PEOPLE[who]} ya está conectado desde otra pestaña u otro celular. Si sos ${otherName()}, cambialo en Ajustes. Si lo cerraste recién, esperá unos segundos y se conecta solo.`);
+    updateHeader()})}
+// cada 5 s: rearma la conexión si se cayó y busca al otro si no está conectado
+function keepAlive(){
+  if(!who||typeof Peer==="undefined")return;
+  if(!peer||peer.destroyed){startPeer();return}
+  if(peer.disconnected){try{peer.reconnect()}catch(e){}return}
+  tryConnect()}
 function tryConnect(){
-  if(!contact||!peer||!peer.open||isOpen())return;
-  if(pendingOut){if(Date.now()-pendingOut.t<9000)return;try{pendingOut.c.close()}catch(e){}}
-  const c=peer.connect(PREFIX+contact.id,{reliable:true});pendingOut={c,t:Date.now()};setupConn(c,true)}
+  if(!who||!peer||!peer.open||isOpen())return;
+  if(pendingOut){if(Date.now()-pendingOut.t<9000)return;try{pendingOut.c.close()}catch(e){}pendingOut=null}
+  const c=peer.connect(ROOM+other(),{reliable:true});if(!c)return;pendingOut={c,t:Date.now()};setupConn(c,true)}
 function setupConn(c,outgoing){
-  if(!c.peer.startsWith(PREFIX)){c.close();return}
-  const other=c.peer.slice(PREFIX.length);
-  if(!outgoing&&contact&&contact.id!==other){c.on("open",()=>{c.send({t:"busy"});setTimeout(()=>c.close(),800)});return}
-  c.initiator=outgoing?me.id:other;
+  if(c.peer!==ROOM+other()){try{c.close()}catch(e){}return} // solo Juan y Marti
+  c.initiator=outgoing?who:other();
   c.on("open",()=>{
     if(pendingOut&&pendingOut.c===c)pendingOut=null;
-    if(!contact){contact={id:other,name:""};LS.set("contact",contact);renderAll()}
-    if(conn&&conn!==c&&conn.open){const keep=me.id<other?me.id:other;
+    if(conn&&conn!==c&&conn.open){const keep=who<other()?who:other(); // si se conectaron los dos a la vez, queda una sola
       if(conn.initiator===keep&&c.initiator!==keep){c.close();return}
       const old=conn;conn=c;old.close()}else conn=c;
-    c.lastSeen=Date.now();c.send({t:"hello",name:me.name||""});updateHeader();flushOutbox();sendReads()});
+    c.lastSeen=Date.now();updateHeader();flushOutbox();sendReads()});
   c.on("data",d=>{c.lastSeen=Date.now();onData(d,c)});
   c.on("close",()=>{if(pendingOut&&pendingOut.c===c)pendingOut=null;if(conn===c){conn=null;updateHeader();setTimeout(tryConnect,1200)}});
   c.on("error",()=>{})}
-document.addEventListener("visibilitychange",()=>{if(!document.hidden){unseen=0;document.title="Chat Espejo";sendReads();if(peer&&peer.disconnected&&!peer.destroyed)peer.reconnect();tryConnect()}});
+// latido: si el otro no responde en 12 s, se lo marca como desconectado
+function heartbeat(){if(!isOpen())return;if(Date.now()-conn.lastSeen>12000){const c=conn;conn=null;try{c.close()}catch(e){}updateHeader();tryConnect();return}
+  try{conn.send({t:"ping"})}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){unseen=0;document.title="Chat Espejo";sendReads();keepAlive()}});
+window.addEventListener("pagehide",()=>{if(isOpen())try{conn.send({t:"bye"})}catch(e){}});
 
 // ---------- mandar y recibir ----------
 async function deliver(m){
@@ -370,13 +340,11 @@ function sendReads(){if(document.hidden||!isOpen())return;const ids=msgs.filter(
   try{conn.send({t:"read",ids})}catch(e){return}ids.forEach(id=>{const m=byId.get(id);m.seen=true;db.put(m)})}
 function onData(d,c){
   if(!d||typeof d!=="object")return;
-  if(d.t==="hello"){if(typeof d.name==="string"&&contact){contact.name=d.name.slice(0,40);LS.set("contact",contact);updateHeader()}}
-  else if(d.t==="msg")receive(d,c);
+  if(d.t==="msg")receive(d,c);
   else if(d.t==="ack")setStatus(d.id,"delivered");
   else if(d.t==="read")(Array.isArray(d.ids)?d.ids:[]).forEach(id=>setStatus(id,"read"));
   else if(d.t==="typing"){typingUntil=Date.now()+3500;typingRec=!!d.rec;updateHeader();setTimeout(updateHeader,3600)}
-  else if(d.t==="bye"){if(conn===c){conn=null;updateHeader()}setTimeout(()=>{try{c.close()}catch(e){}},300)}
-  else if(d.t==="busy")toast("Esa persona ya está conectada con otro contacto.")}
+  else if(d.t==="bye"){if(conn===c){conn=null;updateHeader()}setTimeout(()=>{try{c.close()}catch(e){}},300)}}
 function receive(d,c){
   if(typeof d.id!=="string"||d.id.length>60)return;
   if(byId.has(d.id)){c.send({t:"ack",id:d.id});return}
@@ -387,7 +355,7 @@ function receive(d,c){
     m.blob=new Blob([d.data],{type:mime});m.mime=mime;m.dur=+d.dur||0;m.w=+d.w||0;m.h=+d.h||0}
   typingUntil=0;updateHeader();addMsg(m);c.send({t:"ack",id:m.id});pop();
   if(document.hidden){unseen++;document.title="("+unseen+") Chat Espejo";try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}else sendReads()}
-function sendText(){const ta=$("#text"),text=ta.value.replace(/\s+$/,"");if(!text.trim())return;
+function sendText(){const text=ta.value.replace(/\s+$/,"");if(!text.trim())return;
   ta.value="";autosize();updateMain();const m={id:uid(),from:"me",kind:"text",text,ts:Date.now(),status:"pending"};addMsg(m);deliver(m);ta.focus()}
 function sendMedia(kind,blob,extra){const m=Object.assign({id:uid(),from:"me",kind,blob,mime:blob.type,ts:Date.now(),status:"pending"},extra);addMsg(m);deliver(m)}
 
@@ -403,7 +371,6 @@ async function sendImages(files){for(const f of files){if(!f.type.startsWith("im
   try{const{blob,w,h}=await prepImage(f);sendMedia("image",blob,{w,h})}catch(e){toast("No se pudo abrir esa imagen")}}}
 $("#btnAttach").onclick=()=>$("#file").click();
 $("#file").onchange=e=>{sendImages([...e.target.files]);e.target.value=""};
-$("#text").addEventListener("paste",e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])].filter(f=>f.type.startsWith("image/"));if(fs.length){e.preventDefault();sendImages(fs)}});
 
 // ---------- notas de voz ----------
 let rec=null;
@@ -432,6 +399,7 @@ function autosize(){ta.style.height="auto";ta.style.height=Math.min(ta.scrollHei
 function updateMain(){const b=$("#btnMain"),send=!!rec||!!ta.value.trim();b.innerHTML=send?ICON.send:ICON.mic;b.setAttribute("aria-label",rec?"Mandar audio":send?"Mandar mensaje":"Grabar audio")}
 ta.addEventListener("input",()=>{autosize();updateMain();if(isOpen()&&ta.value&&Date.now()-lastTypingSent>2500){lastTypingSent=Date.now();try{conn.send({t:"typing"})}catch(e){}}});
 ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(pointer:fine)").matches){e.preventDefault();sendText()}});
+ta.addEventListener("paste",e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])].filter(f=>f.type.startsWith("image/"));if(fs.length){e.preventDefault();sendImages(fs)}});
 $("#btnMain").onclick=()=>{if(rec)stopRec(false);else if(ta.value.trim())sendText();else startRec()};
 
 // ---------- sonido al recibir ----------
@@ -439,44 +407,29 @@ document.addEventListener("pointerdown",()=>{if(!actx)try{actx=new(window.AudioC
 function pop(){if(!actx)return;try{const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.frequency.setValueAtTime(620,t);o.frequency.exponentialRampToValueAtTime(980,t+.09);
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.22)}catch(e){}}
 
-// ---------- nombre, código, contacto y ajustes ----------
-$$(".js-name").forEach(i=>{i.value=me.name||"";i.addEventListener("change",()=>{me.name=i.value.trim().slice(0,40);LS.set("me",me);$$(".js-name").forEach(x=>x.value=me.name);
-  if(isOpen())try{conn.send({t:"hello",name:me.name})}catch(e){}})});
-$$(".js-copy").forEach(b=>b.onclick=()=>{const t=pretty(me.id);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Código copiado: "+t),()=>toast("Tu código es "+t))});
-$$(".js-share").forEach(b=>b.onclick=async()=>{const url=myLink(),text="Chateemos por acá. Abrí este link: "+url+" (o poné el código "+pretty(me.id)+")";
-  if(location.protocol==="file:")toast("Ojo: para que te puedan abrir el link, la página tiene que estar en internet. Mientras tanto pasá tu código.");
-  if(navigator.share){try{await navigator.share({title:"Chat Espejo",text});return}catch(e){if(e&&e.name==="AbortError")return}}
-  try{await navigator.clipboard.writeText(text);toast("Link copiado. Pegalo y mandáselo a la otra persona.")}catch(e){toast("Tu código es "+pretty(me.id))}});
-function setContact(id){
-  if(id===me.id){toast("Ese es tu propio código. Necesitás el de la otra persona.");return}
-  if(contact&&contact.id===id){toast("Ya estás conectado con esa persona.");return}
-  const switching=!!contact;
-  if(conn){try{conn.close()}catch(e){}conn=null}
-  contact={id,name:""};LS.set("contact",contact);
-  if(switching){msgs.length=0;byId.clear();urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();db.clear()}
-  renderAll();tryConnect();toast("Buscando a "+pretty(id)+"…")}
-$$(".js-connect").forEach(f=>f.addEventListener("submit",e=>{e.preventDefault();const inp=f.querySelector("input"),id=parseCode(inp.value);
-  if(!id){toast("Ese código no es válido. Tiene 8 letras o números, por ejemplo abcd-2345.");return}
-  inp.value="";$("#settings").open&&$("#settings").close();setContact(id)}));
+// ---------- elegir persona y ajustes ----------
+$$(".person").forEach(b=>b.onclick=()=>{who=b.dataset.who;LS.set("who",who);start()});
 $("#btnSettings").onclick=()=>{updateHeader();$("#settings").showModal()};
 $("#closeSettings").onclick=()=>$("#settings").close();
 $("#settings").addEventListener("click",e=>{if(e.target===$("#settings"))$("#settings").close()});
 $("#mirror").checked=settings.mirror;
 function applyMirror(){$("#app").classList.toggle("mirror",settings.mirror)}
 $("#mirror").onchange=e=>{settings.mirror=e.target.checked;LS.set("settings",settings);applyMirror();renderAll()};
-let clearArm=0;
+$("#btnSwitch").onclick=function(){
+  if(!who){$("#settings").close();return}
+  if(!switchArm){switchArm=Date.now();this.textContent=`Tocá otra vez para ser ${otherName()}`;setTimeout(()=>{switchArm=0;updateHeader()},3000);return}
+  LS.set("who",other());if(isOpen())try{conn.send({t:"bye"})}catch(e){}location.reload()};
 $("#btnClear").onclick=function(){if(Date.now()-clearArm>3000){clearArm=Date.now();this.textContent="Tocá otra vez para borrar todo";setTimeout(()=>this.textContent="Borrar los mensajes",3000);return}
   msgs.length=0;byId.clear();urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();db.clear();renderAll();this.textContent="Borrar los mensajes";clearArm=0;$("#settings").close();toast("Mensajes borrados de este celular")};
 
 // ---------- arranque ----------
-(async function init(){
-  applyMirror();updateMain();
-  const fromHash=parseCode(decodeURIComponent(location.hash.slice(1)));
-  if(location.hash)history.replaceState(null,"",location.href.split("#")[0]);
+async function start(){
   try{const all=await db.all();(all||[]).sort((a,b)=>a.ts-b.ts).forEach(m=>{msgs.push(m);byId.set(m.id,m)})}catch(e){}
-  if(fromHash&&fromHash!==me.id){if(!contact){contact={id:fromHash,name:""};LS.set("contact",contact)}
-    else if(contact.id!==fromHash)banner("Abriste el link de otra persona ("+pretty(fromHash)+").","Chatear con ella",()=>setContact(fromHash))}
-  renderAll();startPeer()})();
+  renderAll();startPeer()}
+applyMirror();updateMain();
+setInterval(keepAlive,5000);
+setInterval(heartbeat,4000);
+if(who)start();else renderAll();
 </script>
 </body>
 </html>
