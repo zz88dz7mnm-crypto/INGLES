@@ -79,19 +79,16 @@ svg{display:block}
 
 /* barra para escribir */
 .composer{display:flex;align-items:flex-end;gap:8px;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--bar);border-top:1px solid var(--line);z-index:2}
-#app.mirror .composer{flex-direction:row-reverse}
 .field{flex:1;min-width:0;background:var(--field);border-radius:23px;display:flex;align-items:center;padding:0 16px;min-height:46px;border:1px solid var(--line)}
 .field textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.35;resize:none;max-height:124px;padding:12px 0;outline:none}
 .round{width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
 .round svg{width:24px;height:24px;fill:currentColor}
 .composer .icon{width:46px;height:46px}
 .rec{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:var(--field);border-radius:23px;min-height:46px;padding:0 6px 0 4px;border:1px solid var(--line)}
-#app.mirror .rec{flex-direction:row-reverse;padding:0 4px 0 14px}
 .rec .icon{color:var(--rec)}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--rec);animation:blink 1s infinite;flex:none}
 .rec time{font-variant-numeric:tabular-nums;font-weight:700}
 .rec span{color:var(--muted);font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#app.mirror .rec span{text-align:right}
 @keyframes blink{50%{opacity:.25}}
 
 /* elegir quién sos y ajustes */
@@ -125,7 +122,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 </style>
 </head>
 <body>
-<div id="app" class="mirror">
+<div id="app">
   <header class="top">
     <div class="avatar" id="avatar" aria-hidden="true">?</div>
     <div class="who">
@@ -167,7 +164,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <dialog id="settings">
   <div class="panel">
     <header><h2>Ajustes</h2><button class="icon" id="closeSettings" type="button" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></header>
-    <label class="switch"><input type="checkbox" id="mirror" checked> <span>Mis mensajes a la izquierda y los botones de este lado (modo espejo)</span></label>
+    <label class="switch"><input type="checkbox" id="mirror" checked> <span>Mis mensajes a la izquierda y los del otro a la derecha (modo espejo)</span></label>
     <hr>
     <div class="group">
       <p id="whoInfo"></p>
@@ -413,8 +410,7 @@ $("#btnSettings").onclick=()=>{updateHeader();$("#settings").showModal()};
 $("#closeSettings").onclick=()=>$("#settings").close();
 $("#settings").addEventListener("click",e=>{if(e.target===$("#settings"))$("#settings").close()});
 $("#mirror").checked=settings.mirror;
-function applyMirror(){$("#app").classList.toggle("mirror",settings.mirror)}
-$("#mirror").onchange=e=>{settings.mirror=e.target.checked;LS.set("settings",settings);applyMirror();renderAll()};
+$("#mirror").onchange=e=>{settings.mirror=e.target.checked;LS.set("settings",settings);renderAll()};
 $("#btnSwitch").onclick=function(){
   if(!who){$("#settings").close();return}
   if(!switchArm){switchArm=Date.now();this.textContent=`Tocá otra vez para ser ${otherName()}`;setTimeout(()=>{switchArm=0;updateHeader()},3000);return}
@@ -426,7 +422,7 @@ $("#btnClear").onclick=function(){if(Date.now()-clearArm>3000){clearArm=Date.now
 async function start(){
   try{const all=await db.all();(all||[]).sort((a,b)=>a.ts-b.ts).forEach(m=>{msgs.push(m);byId.set(m.id,m)})}catch(e){}
   renderAll();startPeer()}
-applyMirror();updateMain();
+updateMain();
 setInterval(keepAlive,5000);
 setInterval(heartbeat,4000);
 if(who)start();else renderAll();
