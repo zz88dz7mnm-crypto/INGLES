@@ -13,17 +13,17 @@
 :root{
   --wall:#e9edf2; --dot:#d5dce5; --top:#ffffff; --bar:#f3f5f8; --field:#ffffff;
   --ink:#111b21; --muted:#667781; --line:#dbe1e8;
-  --mine:#d6e2ff; --theirs:#ffffff; --accent:#2f5bea; --accent-ink:#ffffff; --read:#2f5bea; --rec:#e5383b;
+  --mine:#d6e2ff; --theirs:#ffffff; --accent:#2f5bea; --accent-ink:#ffffff; --sel:#e3ebff; --read:#2f5bea; --rec:#e5383b;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --wall:#0e1318; --dot:#19212b; --top:#17202a; --bar:#141b23; --field:#1f2933;
   --ink:#e9edef; --muted:#8a9aa6; --line:#283440;
-  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}}
+  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --sel:#1e2a52; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}}
 :root[data-theme="dark"]{
   --wall:#0e1318; --dot:#19212b; --top:#17202a; --bar:#141b23; --field:#1f2933;
   --ink:#e9edef; --muted:#8a9aa6; --line:#283440;
-  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}
+  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --sel:#1e2a52; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
@@ -61,9 +61,11 @@ svg{display:block}
 .row.right:not(.cont) .bubble{border-top-right-radius:3px}
 .text{white-space:pre-wrap;overflow-wrap:anywhere}
 .text a{color:var(--accent)}
+.text.missing{color:var(--muted);font-style:italic}
 .meta{float:right;display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--muted);margin:8px 0 -4px 12px;line-height:1;font-variant-numeric:tabular-nums}
 .tk{width:17px;height:12px;color:var(--muted)}
 .tk.read{color:var(--read)}
+.tk.fail{color:var(--rec)}
 .bubble.media{padding:4px}
 .photo{display:block;width:260px;max-width:100%;height:auto;max-height:380px;object-fit:cover;border-radius:7px;cursor:zoom-in;background:var(--line)}
 .bubble.media .meta{position:absolute;right:9px;bottom:9px;margin:0;float:none;color:#fff;background:rgba(0,0,0,.4);padding:3px 6px;border-radius:8px}
@@ -91,18 +93,22 @@ svg{display:block}
 .rec span{color:var(--muted);font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @keyframes blink{50%{opacity:.25}}
 
-/* elegir quién sos y ajustes */
+/* primera vez y ajustes */
 .setup{margin:auto 0;align-self:center;width:100%;max-width:420px;background:var(--top);border-radius:16px;padding:22px 20px;display:grid;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .setup h1{margin:0;font-size:24px;text-align:center}
 .setup p,.panel p{margin:0;color:var(--muted);font-size:14px}
-.setup p{text-align:center}
 .pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.person{display:grid;justify-items:center;gap:10px;padding:20px 8px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);font-weight:800;font-size:17px}
+.person{display:grid;justify-items:center;gap:10px;padding:18px 8px 14px;border-radius:14px;border:2px solid var(--line);background:var(--field);font-weight:800;font-size:17px}
 .person:hover,.person:focus-visible{border-color:var(--accent);outline:none}
-.person .avatar{width:68px;height:68px;font-size:30px}
+.person[aria-pressed="true"]{border-color:var(--accent);background:var(--sel)}
+.person .avatar{width:64px;height:64px;font-size:28px}
 .group{display:grid;gap:10px}
+.lbl{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.txt{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);min-width:0}
+.keybox{font:700 18px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:10px 12px;border:1.5px dashed var(--line);border-radius:10px;overflow-wrap:anywhere;user-select:all}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
-.btn{flex:1 1 auto;border:0;border-radius:10px;padding:11px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
+.btn{flex:1 1 auto;border:0;border-radius:10px;padding:12px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
 .btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
 .btn.danger{background:transparent;color:var(--rec);border:1.5px solid var(--rec)}
 .switch{display:flex;align-items:center;gap:12px;cursor:pointer}
@@ -137,12 +143,20 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
   <div class="scroll" id="scroll">
     <section class="setup" id="setup" hidden>
-      <h1>¿Quién sos?</h1>
-      <div class="pick">
-        <button class="person" type="button" data-who="juan"><span class="avatar">J</span>Soy Juan</button>
-        <button class="person" type="button" data-who="marti"><span class="avatar">M</span>Soy Marti</button>
+      <h1>Chat Espejo</h1>
+      <div class="group">
+        <span class="lbl">¿Quién sos?</span>
+        <div class="pick">
+          <button class="person" type="button" data-who="juan" aria-pressed="false"><span class="avatar">J</span>Soy Juan</button>
+          <button class="person" type="button" data-who="marti" aria-pressed="false"><span class="avatar">M</span>Soy Marti</button>
+        </div>
       </div>
-      <p>Este chat es solo para Juan y Marti. Elegís una vez y queda guardado en este celular. Tus mensajes van a la izquierda y los del otro a la derecha.</p>
+      <div class="group">
+        <label class="lbl" for="keyIn">Clave del chat</label>
+        <input class="txt" id="keyIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Una frase, igual en los dos celulares">
+        <p>Inventen una frase (por ejemplo: pelota azul 77) y escríbanla igual en los dos celulares. Se pone una sola vez. Con esa clave los mensajes viajan cifrados y nadie más los puede leer.</p>
+      </div>
+      <div class="btnrow"><button class="btn" id="btnEnter" type="button" disabled>Entrar</button><button class="btn sec" id="btnBack" type="button" hidden>Volver</button></div>
     </section>
     <div class="msgs" id="msgs"></div>
   </div>
@@ -170,39 +184,54 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <p id="whoInfo"></p>
       <div class="btnrow"><button class="btn sec" id="btnSwitch" type="button">Cambiar</button></div>
     </div>
+    <div class="group">
+      <span class="lbl">Clave del chat</span>
+      <div class="keybox" id="keyShow">-</div>
+      <p>Tiene que ser exactamente la misma en los dos celulares. Si no se ven los mensajes, lo primero es comparar esto.</p>
+      <div class="btnrow"><button class="btn sec" id="btnKey" type="button">Cambiar clave</button></div>
+    </div>
+    <div class="group">
+      <span class="lbl">Estado</span>
+      <p id="diag"></p>
+    </div>
     <div class="btnrow"><button class="btn danger" id="btnClear" type="button">Borrar los mensajes</button></div>
-    <p>Los mensajes se guardan solo en este celular. Viajan directo entre los dos teléfonos y llegan cuando los dos tienen la página abierta; si el otro no está, quedan con el relojito y se mandan solos cuando entra.</p>
+    <p>Los mensajes se guardan en este celular y pasan por un buzón en internet (ntfy.sh), cifrados con la clave. El buzón guarda los mensajes 12 horas y las fotos y audios 3 horas, así que el otro tiene que abrir la página dentro de ese tiempo.</p>
   </div>
 </dialog>
 
 <div class="viewer" id="viewer" hidden><img id="viewerImg" alt="Foto ampliada"></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const RELAY=String(window.CHAT_RELAY||"https://ntfy.sh").replace(/\/+$/,"");
 const PEOPLE={juan:"Juan",marti:"Marti"};
-const ROOM="chatespejo-k3v9q2-"; // cada persona tiene un ID fijo: ROOM+juan y ROOM+marti
+const MAX_TEXT_BYTES=1200; // el buzón acepta mensajes de hasta 4096 bytes; el texto se cifra y crece un tercio
 const ICON={
   mic:'<svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10.2 15 12 3.4 13.8z"/></svg>',
   play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
   pause:'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
   pending:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Pendiente"><circle cx="9" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 3.6V6l1.8 1.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
-  delivered:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Entregado"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  read:'<svg class="tk read" viewBox="0 0 18 12" role="img" aria-label="Leído"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  sent:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Enviado"><path d="M4 6.5l3.2 3.2L14 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  read:'<svg class="tk read" viewBox="0 0 18 12" role="img" aria-label="Leído"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  failed:'<svg class="tk fail" viewBox="0 0 18 12" role="img" aria-label="No se pudo enviar"><circle cx="9" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 3.4v3.2M9 8.5v.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
 };
+const enc=new TextEncoder(), dec=new TextDecoder();
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+const normKey=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
 
 // ---------- estado ----------
 let who=LS.get("who",null);if(!PEOPLE[who])who=null;
-const other=()=>who==="juan"?"marti":"juan";
-const otherName=()=>PEOPLE[other()];
+let secret=LS.get("secret","");if(typeof secret!=="string")secret="";
 let settings=Object.assign({mirror:true},LS.get("settings",{}));
 const msgs=[], byId=new Map(), els=new Map(), urls=new Map();
-let peer=null, conn=null, pendingOut=null, typingUntil=0, typingRec=false, lastTypingSent=0, unseen=0, actx=null, switchArm=0, clearArm=0;
+let crypt=null, sinceTs=0, otherSeen=0, link="off", lastErr="", editing=false, unseen=0, actx=null, switchArm=0, clearArm=0;
+const other=()=>who==="juan"?"marti":"juan";
+const otherName=()=>PEOPLE[other()];
+const ready=()=>!!(who&&secret&&!editing);
 
 // ---------- almacenamiento: una base por persona, para no mezclar historiales ----------
 const db=(()=>{let p;
@@ -210,16 +239,28 @@ const db=(()=>{let p;
   const run=(mode,fn)=>open().then(d=>new Promise((res,rej)=>{const t=d.transaction("msgs",mode),q=fn(t.objectStore("msgs"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
   return{all:()=>run("readonly",s=>s.getAll()),put:m=>run("readwrite",s=>s.put(m)).catch(()=>{}),clear:()=>run("readwrite",s=>s.clear()).catch(()=>{})}})();
 
+// ---------- cifrado: todo lo que pasa por el buzón va cifrado con la clave compartida ----------
+function toB64u(bytes){const u=new Uint8Array(bytes);let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function fromB64u(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+async function deriveKeys(pass){
+  const base=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveBits"]);
+  const bits=new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:enc.encode("chat-espejo/v2"),iterations:150000},base,512));
+  const aes=await crypto.subtle.importKey("raw",bits.slice(0,32),"AES-GCM",false,["encrypt","decrypt"]);
+  const hm=await crypto.subtle.importKey("raw",bits.slice(32),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  const topic=async p=>"ce2-"+[...new Uint8Array(await crypto.subtle.sign("HMAC",hm,enc.encode("inbox:"+p)))].slice(0,20).map(x=>x.toString(16).padStart(2,"0")).join("");
+  return{aes,topics:{juan:await topic("juan"),marti:await topic("marti")}}}
+async function seal(bytes){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},crypt.aes,bytes)),out=new Uint8Array(12+ct.length);out.set(iv);out.set(ct,12);return out}
+async function unseal(bytes){const u=new Uint8Array(bytes);return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:u.slice(0,12)},crypt.aes,u.slice(12)))}
+
 // ---------- utilidades de interfaz ----------
 let toastTimer;
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.hidden=true,3200)}
-function banner(text){$("#bannerText").textContent=text;$("#banner").hidden=false}
-$("#bannerClose").onclick=()=>$("#banner").hidden=true;
 const fmtTime=ts=>new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
 const fmtDur=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 const dayKey=ts=>new Date(ts).toDateString();
 function dayLabel(ts){const d=new Date(ts),t=new Date();if(d.toDateString()===t.toDateString())return"Hoy";t.setDate(t.getDate()-1);if(d.toDateString()===t.toDateString())return"Ayer";
   return d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:d.getFullYear()===new Date().getFullYear()?undefined:"numeric"})}
+function seenLabel(ts){const d=new Date(ts),t=new Date();if(d.toDateString()===t.toDateString())return fmtTime(ts);t.setDate(t.getDate()-1);return(d.toDateString()===t.toDateString()?"ayer ":d.toLocaleDateString("es-AR",{day:"numeric",month:"numeric"})+" ")+fmtTime(ts)}
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function linkify(node,text){const re=/https?:\/\/[^\s<>"]+/g;let last=0,m;
   while((m=re.exec(text))){if(m.index>last)node.append(text.slice(last,m.index));const a=el("a",null,m[0]);a.href=m[0];a.target="_blank";a.rel="noopener noreferrer";node.append(a);last=re.lastIndex}
@@ -228,6 +269,7 @@ function urlFor(m){if(!urls.has(m.id))urls.set(m.id,URL.createObjectURL(m.blob))
 const scroller=$("#scroll");
 const nearBottom=()=>scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<160;
 const toBottom=()=>requestAnimationFrame(()=>scroller.scrollTop=scroller.scrollHeight);
+const errLabel=e=>e&&e.status?"HTTP "+e.status:"sin red";
 
 // ---------- dibujar mensajes ----------
 function sideOf(m){return (m.from==="me")===settings.mirror?"left":"right"}
@@ -236,7 +278,8 @@ function bubble(m,prev){
   const row=el("div",`row ${m.from==="me"?"mine":"theirs"} ${sideOf(m)}${cont?" cont":""}`);
   const b=el("div","bubble"),meta=el("span","meta",fmtTime(m.ts));
   if(m.from==="me"){const tk=el("span","ticks");tk.innerHTML=ICON[m.status]||ICON.pending;meta.append(tk)}
-  if(m.kind==="image"){b.classList.add("media");const img=new Image();img.className="photo";img.alt="Foto";img.decoding="async";img.src=urlFor(m);
+  if(m.missing){const t=el("div","text missing",m.kind==="image"?"Foto no disponible (el buzón la borra a las 3 horas)":"Audio no disponible (el buzón lo borra a las 3 horas)");t.append(meta);b.append(t)}
+  else if(m.kind==="image"){b.classList.add("media");const img=new Image();img.className="photo";img.alt="Foto";img.decoding="async";img.src=urlFor(m);
     if(m.w&&m.h)img.style.aspectRatio=m.w+" / "+m.h;img.onclick=()=>openViewer(img.src);b.append(img,meta)}
   else if(m.kind==="audio"){b.append(voicePlayer(m),meta)}
   else{const t=el("div","text");linkify(t,m.text||"");t.append(meta);b.append(t)}
@@ -256,105 +299,145 @@ function voicePlayer(m){
   w.append(btn,track,time);return w}
 function renderAll(){
   const box=$("#msgs");box.innerHTML="";els.clear();
-  $("#setup").hidden=!!who;$("#composer").hidden=!who;
-  if(!who){updateHeader();return}
+  const ok=ready();
+  $("#setup").hidden=ok;$("#composer").hidden=!ok;
+  if(!ok){updateHeader();return}
   box.append(el("div","note",settings.mirror?`Tus mensajes van a la izquierda y los de ${otherName()} a la derecha.`:`Tus mensajes van a la derecha y los de ${otherName()} a la izquierda.`));
   if(!msgs.length)box.append(el("div","note","Todavía no hay mensajes. Mandá el primero."));
   let prev=null;for(const m of msgs){if(!prev||dayKey(prev.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));box.append(bubble(m,prev));prev=m}
   updateHeader();toBottom()}
 function addMsg(m){
-  const atEnd=nearBottom();msgs.push(m);byId.set(m.id,m);db.put(m);
-  const box=$("#msgs"),prev=msgs[msgs.length-2];
+  const atEnd=nearBottom(),last=msgs[msgs.length-1];
+  msgs.push(m);byId.set(m.id,m);db.put(m);
+  if(last&&m.ts<last.ts){msgs.sort((a,b)=>a.ts-b.ts);renderAll();return} // llegó tarde un mensaje más viejo
+  const box=$("#msgs");
   if(msgs.length===1){renderAll();return}
-  if(!prev||dayKey(prev.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));
-  box.append(bubble(m,prev));if(atEnd||m.from==="me")toBottom()}
-function setStatus(id,st){const m=byId.get(id);if(!m||m.from!=="me")return;const rank={pending:0,delivered:1,read:2};
-  if(rank[st]<=rank[m.status])return;m.status=st;db.put(m);const r=els.get(id),tk=r&&r.querySelector(".ticks");if(tk)tk.innerHTML=ICON[st]}
+  if(!last||dayKey(last.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));
+  box.append(bubble(m,last));if(atEnd||m.from==="me")toBottom()}
+const RANK={pending:0,sent:1,read:2};
+function setStatus(id,st){const m=byId.get(id);if(!m||m.from!=="me")return;if(st!=="failed"&&(RANK[st]<=RANK[m.status]))return;
+  m.status=st;db.put(m);const r=els.get(id),tk=r&&r.querySelector(".ticks");if(tk)tk.innerHTML=ICON[st]}
 function openViewer(src){$("#viewerImg").src=src;$("#viewer").hidden=false}
 $("#viewer").onclick=()=>$("#viewer").hidden=true;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#viewer").hidden=true});
 
-// ---------- cabecera ----------
+// ---------- cabecera y estado ----------
+function setLink(s){if(link!==s){link=s;updateHeader()}}
 function updateHeader(){
   $("#cname").textContent=who?otherName():"Chat Espejo";
   $("#avatar").textContent=who?otherName().charAt(0):"?";
   const st=$("#cstatus");let t,on=false;
   if(!who)t="Elegí quién sos para empezar";
-  else if(typeof Peer==="undefined")t="Sin conexión a internet. Recargá la página.";
-  else if(!peer||!peer.open)t="Conectando…";
-  else if(isOpen()){on=true;t=Date.now()<typingUntil?(typingRec?"grabando audio…":"escribiendo…"):"en línea"}
-  else t="desconectado · tus mensajes se mandan cuando entre";
+  else if(!secret||editing)t="Poné la clave del chat";
+  else if(!crypt)t=lastErr||"Preparando…";
+  else if(link==="on"){on=true;t="Conectado"+(otherSeen?" · últ. vez "+seenLabel(otherSeen):"")}
+  else if(link==="connecting")t="Conectando…";
+  else t="Sin conexión · reintentando"+(lastErr?" ("+lastErr+")":"");
   st.textContent=t;st.classList.toggle("on",on);
-  if(who){$("#whoInfo").textContent=`En este celular sos ${PEOPLE[who]}.`;if(!switchArm)$("#btnSwitch").textContent=`Cambiar: soy ${otherName()}`}}
+  if(who){const pend=msgs.filter(m=>m.from==="me"&&m.status==="pending").length;
+    $("#whoInfo").textContent=`En este celular sos ${PEOPLE[who]}.`;if(!switchArm)$("#btnSwitch").textContent=`Cambiar: soy ${otherName()}`;
+    $("#keyShow").textContent=secret||"-";
+    $("#diag").textContent=`Buzón ${RELAY.replace(/^https?:\/\//,"")}: ${link==="on"?"conectado":"sin conexión"}${lastErr?" · último error: "+lastErr:""}${pend?` · ${pend} sin enviar`:""}.`}}
 
-// ---------- conexión directa entre los dos celulares (PeerJS / WebRTC) ----------
-const isOpen=()=>!!(conn&&conn.open);
-function startPeer(){
-  if(typeof Peer==="undefined"||!who)return;
-  const p=new Peer(ROOM+who,Object.assign({debug:0},window.CHAT_PEER_OPTIONS||{}));peer=p;
-  p.on("open",()=>{if(p!==peer)return;$("#banner").hidden=true;updateHeader();tryConnect()});
-  p.on("connection",c=>{if(p===peer)setupConn(c,false);else c.close()});
-  p.on("disconnected",()=>{if(p===peer)updateHeader()});
-  p.on("error",err=>{if(p!==peer)return;
-    if(err.type==="peer-unavailable"){if(pendingOut){try{pendingOut.c.close()}catch(e){}pendingOut=null}return}
-    if(err.type==="unavailable-id")banner(`${PEOPLE[who]} ya está conectado desde otra pestaña u otro celular. Si sos ${otherName()}, cambialo en Ajustes. Si lo cerraste recién, esperá unos segundos y se conecta solo.`);
-    updateHeader()})}
-// cada 5 s: rearma la conexión si se cayó y busca al otro si no está conectado
-function keepAlive(){
-  if(!who||typeof Peer==="undefined")return;
-  if(!peer||peer.destroyed){startPeer();return}
-  if(peer.disconnected){try{peer.reconnect()}catch(e){}return}
-  tryConnect()}
-function tryConnect(){
-  if(!who||!peer||!peer.open||isOpen())return;
-  if(pendingOut){if(Date.now()-pendingOut.t<9000)return;try{pendingOut.c.close()}catch(e){}pendingOut=null}
-  const c=peer.connect(ROOM+other(),{reliable:true});if(!c)return;pendingOut={c,t:Date.now()};setupConn(c,true)}
-function setupConn(c,outgoing){
-  if(c.peer!==ROOM+other()){try{c.close()}catch(e){}return} // solo Juan y Marti
-  c.initiator=outgoing?who:other();
-  c.on("open",()=>{
-    if(pendingOut&&pendingOut.c===c)pendingOut=null;
-    if(conn&&conn!==c&&conn.open){const keep=who<other()?who:other(); // si se conectaron los dos a la vez, queda una sola
-      if(conn.initiator===keep&&c.initiator!==keep){c.close();return}
-      const old=conn;conn=c;old.close()}else conn=c;
-    c.lastSeen=Date.now();updateHeader();flushOutbox();sendReads()});
-  c.on("data",d=>{c.lastSeen=Date.now();onData(d,c)});
-  c.on("close",()=>{if(pendingOut&&pendingOut.c===c)pendingOut=null;if(conn===c){conn=null;updateHeader();setTimeout(tryConnect,1200)}});
-  c.on("error",()=>{})}
-// latido: si el otro no responde en 12 s, se lo marca como desconectado
-function heartbeat(){if(!isOpen())return;if(Date.now()-conn.lastSeen>12000){const c=conn;conn=null;try{c.close()}catch(e){}updateHeader();tryConnect();return}
-  try{conn.send({t:"ping"})}catch(e){}}
-document.addEventListener("visibilitychange",()=>{if(!document.hidden){unseen=0;document.title="Chat Espejo";sendReads();keepAlive()}});
-window.addEventListener("pagehide",()=>{if(isOpen())try{conn.send({t:"bye"})}catch(e){}});
+// ---------- buzón en internet (ntfy): cada persona tiene el suyo y el otro le deja los mensajes ahí ----------
+async function httpFail(r){const e=new Error("HTTP "+r.status);e.status=r.status;e.retry=+r.headers.get("Retry-After")||0;return e}
+async function postText(topic,bytes){const r=await fetch(`${RELAY}/${topic}`,{method:"POST",body:toB64u(bytes)});if(!r.ok)throw await httpFail(r)}
+async function putFile(topic,metaBytes,fileBytes){const r=await fetch(`${RELAY}/${topic}`,{method:"PUT",headers:{"Filename":"m.bin","Message":toB64u(metaBytes)},body:fileBytes});if(!r.ok)throw await httpFail(r)}
+async function deliverMsg(m){
+  const topic=crypt.topics[other()],env={t:"msg",id:m.id,ts:m.ts,kind:m.kind};
+  if(m.kind==="text"){env.text=m.text;await postText(topic,await seal(enc.encode(JSON.stringify(env))))}
+  else{env.mime=m.mime;env.dur=m.dur||0;env.w=m.w||0;env.h=m.h||0;
+    await putFile(topic,await seal(enc.encode(JSON.stringify(env))),await seal(new Uint8Array(await m.blob.arrayBuffer())))}}
+let pumping=false, retryTimer=null, warned429=false;
+async function pump(){
+  if(pumping||!crypt)return;pumping=true;
+  try{for(;;){
+    const m=msgs.find(x=>x.from==="me"&&x.status==="pending");if(!m)break;
+    try{await deliverMsg(m);setStatus(m.id,"sent");warned429=false;if(lastErr){lastErr="";updateHeader()}}
+    catch(e){
+      if(e.status>=400&&e.status<500&&e.status!==429&&e.status!==408){setStatus(m.id,"failed");lastErr=errLabel(e);continue} // el buzón lo rechazó: no sirve reintentar
+      if(e.status===429&&!warned429){warned429=true;toast("El buzón pide esperar un poco. Reintento solo.")}
+      lastErr=errLabel(e);updateHeader();clearTimeout(retryTimer);retryTimer=setTimeout(pump,e.status===429?Math.max(10000,e.retry*1000):4000);break}
+  }}finally{pumping=false;updateHeader()}}
 
-// ---------- mandar y recibir ----------
-async function deliver(m){
-  if(!isOpen())return;const p={t:"msg",id:m.id,kind:m.kind,ts:m.ts};
-  if(m.kind==="text")p.text=m.text;else{p.data=await m.blob.arrayBuffer();p.mime=m.mime;p.dur=m.dur||0;p.w=m.w||0;p.h=m.h||0}
-  try{conn.send(p)}catch(e){}}
-function flushOutbox(){msgs.filter(m=>m.from==="me"&&m.status==="pending").forEach(deliver)}
-function sendReads(){if(document.hidden||!isOpen())return;const ids=msgs.filter(m=>m.from==="them"&&!m.seen).map(m=>m.id);if(!ids.length)return;
-  try{conn.send({t:"read",ids})}catch(e){return}ids.forEach(id=>{const m=byId.get(id);m.seen=true;db.put(m)})}
-function onData(d,c){
-  if(!d||typeof d!=="object")return;
-  if(d.t==="msg")receive(d,c);
-  else if(d.t==="ack")setStatus(d.id,"delivered");
-  else if(d.t==="read")(Array.isArray(d.ids)?d.ids:[]).forEach(id=>setStatus(id,"read"));
-  else if(d.t==="typing"){typingUntil=Date.now()+3500;typingRec=!!d.rec;updateHeader();setTimeout(updateHeader,3600)}
-  else if(d.t==="bye"){if(conn===c){conn=null;updateHeader()}setTimeout(()=>{try{c.close()}catch(e){}},300)}}
-function receive(d,c){
-  if(typeof d.id!=="string"||d.id.length>60)return;
-  if(byId.has(d.id)){c.send({t:"ack",id:d.id});return}
-  const kind=["text","image","audio"].includes(d.kind)?d.kind:null;if(!kind)return;
-  const m={id:d.id,from:"them",kind,ts:Date.now(),seen:false};
-  if(kind==="text"){m.text=String(d.text||"").slice(0,20000)}
-  else{const mime=String(d.mime||"");if(!(kind==="image"?/^image\//:/^audio\//).test(mime)||!d.data)return;
-    m.blob=new Blob([d.data],{type:mime});m.mime=mime;m.dur=+d.dur||0;m.w=+d.w||0;m.h=+d.h||0}
-  typingUntil=0;updateHeader();addMsg(m);c.send({t:"ack",id:m.id});pop();
-  if(document.hidden){unseen++;document.title="("+unseen+") Chat Espejo";try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}else sendReads()}
+let readTimer=null, readBusy=false;
+function queueRead(){if(document.hidden||readTimer)return;readTimer=setTimeout(flushReads,1200)}
+async function flushReads(){
+  readTimer=null;if(readBusy||document.hidden||!crypt)return;
+  const ids=msgs.filter(m=>m.from==="them"&&!m.seen).map(m=>m.id).slice(0,60);if(!ids.length)return;
+  readBusy=true;
+  try{await postText(crypt.topics[other()],await seal(enc.encode(JSON.stringify({t:"read",ids}))));ids.forEach(id=>{const m=byId.get(id);if(m){m.seen=true;db.put(m)}});if(msgs.some(m=>m.from==="them"&&!m.seen))queueRead()}
+  catch(e){readTimer=setTimeout(flushReads,e.status===429?15000:6000)}
+  finally{readBusy=false}}
+
+async function handleEvent(ev){
+  if(typeof ev.message!=="string"||!ev.message)return;
+  let env;
+  try{env=JSON.parse(dec.decode(await unseal(fromB64u(ev.message))))}catch(e){lastErr="mensaje ilegible";updateHeader();return}
+  if(ev.time*1000>otherSeen){otherSeen=ev.time*1000;LS.set("seen-"+who,otherSeen)}
+  if(env.t==="read"){(Array.isArray(env.ids)?env.ids:[]).forEach(id=>setStatus(id,"read"));updateHeader();return}
+  if(env.t!=="msg"||typeof env.id!=="string"||env.id.length>60||byId.has(env.id))return;
+  const kind=["text","image","audio"].includes(env.kind)?env.kind:null;if(!kind)return;
+  const m={id:env.id,from:"them",kind,ts:Math.min(+env.ts||Date.now(),Date.now()),seen:false};
+  if(kind==="text")m.text=String(env.text||"").slice(0,20000);
+  else{
+    const mime=String(env.mime||"");if(!(kind==="image"?/^image\//:/^audio\//).test(mime))return;
+    m.mime=mime;m.dur=+env.dur||0;m.w=+env.w||0;m.h=+env.h||0;
+    const url=ev.attachment&&ev.attachment.url;
+    if(typeof url==="string"&&url.startsWith(RELAY+"/")){
+      try{const r=await fetch(url);if(!r.ok)throw 0;m.blob=new Blob([await unseal(await r.arrayBuffer())],{type:mime})}catch(e){m.missing=true}
+    }else m.missing=true}
+  addMsg(m);
+  if(Date.now()/1000-ev.time<60){pop();if(document.hidden){unseen++;document.title="("+unseen+") Chat Espejo";try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}}
+  queueRead()}
+
+let ctl=null, lastData=0, backoff=1000, reconTimer=null;
+function stopListen(){clearTimeout(reconTimer);if(ctl){ctl.stopped=true;try{ctl.ac.abort()}catch(e){}ctl=null}}
+async function onLine(line,me){
+  let ev;try{ev=JSON.parse(line)}catch(e){return}
+  if(ev.event==="open"){if(me)me.opened=true;backoff=1000;if(lastErr&&crypt){lastErr=""}setLink("on");return}
+  if(ev.event!=="message")return;
+  try{await handleEvent(ev)}catch(e){}
+  if(ev.time>sinceTs){sinceTs=ev.time;LS.set("since-"+who,sinceTs)}}
+async function pollOnce(){ // plan B si la conexión continua no anda: pregunta por los mensajes nuevos
+  const r=await fetch(`${RELAY}/${crypt.topics[who]}/json?poll=1&since=${sinceTs||"all"}`,{cache:"no-store"});
+  if(!r.ok)throw await httpFail(r);
+  for(const line of(await r.text()).split("\n")){if(line.trim())await onLine(line.trim(),null)}}
+async function listen(){
+  stopListen();if(!crypt||!ready())return;
+  const me={ac:new AbortController(),stopped:false,opened:false};ctl=me;
+  const openTimer=setTimeout(()=>{if(!me.opened)try{me.ac.abort()}catch(e){}},12000);
+  if(link!=="on")setLink("connecting");
+  try{
+    const res=await fetch(`${RELAY}/${crypt.topics[who]}/json?since=${sinceTs||"all"}`,{signal:me.ac.signal,cache:"no-store"});
+    if(!res.ok)throw await httpFail(res);
+    if(!res.body||!res.body.getReader)throw new Error("sin streaming");
+    const reader=res.body.getReader(),td=new TextDecoder();let buf="";lastData=Date.now();
+    for(;;){
+      const{value,done}=await reader.read();if(done)break;
+      lastData=Date.now();buf+=td.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n"))>=0){const line=buf.slice(0,i).trim();buf=buf.slice(i+1);if(line)await onLine(line,me)}}
+    throw new Error("cerrado")}
+  catch(e){
+    clearTimeout(openTimer);if(me.stopped)return;
+    ctl=null;lastErr=me.opened&&e.message==="cerrado"?"":errLabel(e);
+    try{await pollOnce();setLink("on");lastErr=""}catch(e2){lastErr=errLabel(e2);setLink("off")}
+    updateHeader();reconTimer=setTimeout(listen,backoff);backoff=Math.min(backoff*2,15000)}}
+setInterval(()=>{if(ctl&&link==="on"&&Date.now()-lastData>70000){try{ctl.ac.abort()}catch(e){}}},10000); // el buzón avisa cada ~30 s; si pasa mucho sin señales, se reconecta
+function wake(){if(!crypt||!ready())return;listen();pump();queueRead()}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){unseen=0;document.title="Chat Espejo";wake()}});
+window.addEventListener("online",wake);
+window.addEventListener("pageshow",e=>{if(e.persisted)wake()});
+
+// ---------- mandar ----------
+function splitText(text){const out=[];let cur="",bytes=0;
+  for(const ch of text){const b=enc.encode(ch).length;if(bytes+b>MAX_TEXT_BYTES&&cur){out.push(cur);cur="";bytes=0}cur+=ch;bytes+=b}
+  if(cur)out.push(cur);return out}
 function sendText(){const text=ta.value.replace(/\s+$/,"");if(!text.trim())return;
-  ta.value="";autosize();updateMain();const m={id:uid(),from:"me",kind:"text",text,ts:Date.now(),status:"pending"};addMsg(m);deliver(m);ta.focus()}
-function sendMedia(kind,blob,extra){const m=Object.assign({id:uid(),from:"me",kind,blob,mime:blob.type,ts:Date.now(),status:"pending"},extra);addMsg(m);deliver(m)}
+  ta.value="";autosize();updateMain();const now=Date.now();
+  splitText(text).forEach((part,i)=>addMsg({id:uid(),from:"me",kind:"text",text:part,ts:now+i,status:"pending"}));
+  pump();ta.focus()}
+function sendMedia(kind,blob,extra){addMsg(Object.assign({id:uid(),from:"me",kind,blob,mime:blob.type,ts:Date.now(),status:"pending"},extra));pump()}
 
 // ---------- fotos ----------
 async function prepImage(file){
@@ -382,9 +465,7 @@ async function startRec(){
   mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());clearInterval(r.timer);rec=null;setRecUI(false);if(r.cancel)return;
     const dur=(Date.now()-r.t0)/1000;if(dur<1){toast("El audio es muy corto");return}
     sendMedia("audio",new Blob(r.chunks,{type:(mr.mimeType||type||"audio/webm").split(";")[0]}),{dur})};
-  r.timer=setInterval(()=>{const s=(Date.now()-r.t0)/1000;$("#recTime").textContent=fmtDur(s);
-    if(isOpen()&&Date.now()-lastTypingSent>2500){lastTypingSent=Date.now();try{conn.send({t:"typing",rec:true})}catch(e){}}
-    if(s>=300)stopRec(false)},250);
+  r.timer=setInterval(()=>{const s=(Date.now()-r.t0)/1000;$("#recTime").textContent=fmtDur(s);if(s>=300)stopRec(false)},250);
   mr.start(1000);setRecUI(true)}
 function stopRec(cancel){if(!rec)return;rec.cancel=cancel;try{rec.mr.stop()}catch(e){}}
 function setRecUI(on){$("#rec").hidden=!on;$("#field").hidden=on;$("#btnAttach").hidden=on;$("#recTime").textContent="0:00";updateMain()}
@@ -394,7 +475,7 @@ $("#recCancel").onclick=()=>stopRec(true);
 const ta=$("#text");
 function autosize(){ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,124)+"px"}
 function updateMain(){const b=$("#btnMain"),send=!!rec||!!ta.value.trim();b.innerHTML=send?ICON.send:ICON.mic;b.setAttribute("aria-label",rec?"Mandar audio":send?"Mandar mensaje":"Grabar audio")}
-ta.addEventListener("input",()=>{autosize();updateMain();if(isOpen()&&ta.value&&Date.now()-lastTypingSent>2500){lastTypingSent=Date.now();try{conn.send({t:"typing"})}catch(e){}}});
+ta.addEventListener("input",()=>{autosize();updateMain()});
 ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(pointer:fine)").matches){e.preventDefault();sendText()}});
 ta.addEventListener("paste",e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])].filter(f=>f.type.startsWith("image/"));if(fs.length){e.preventDefault();sendImages(fs)}});
 $("#btnMain").onclick=()=>{if(rec)stopRec(false);else if(ta.value.trim())sendText();else startRec()};
@@ -404,28 +485,43 @@ document.addEventListener("pointerdown",()=>{if(!actx)try{actx=new(window.AudioC
 function pop(){if(!actx)return;try{const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.frequency.setValueAtTime(620,t);o.frequency.exponentialRampToValueAtTime(980,t+.09);
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.22)}catch(e){}}
 
-// ---------- elegir persona y ajustes ----------
-$$(".person").forEach(b=>b.onclick=()=>{who=b.dataset.who;LS.set("who",who);start()});
+// ---------- elegir persona y clave ----------
+let pendingWho=who;
+const checkEnter=()=>{$("#btnEnter").disabled=!(pendingWho&&normKey($("#keyIn").value).length>=4)};
+const syncPick=()=>$$(".person").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.who===pendingWho)));
+function showSetup(){pendingWho=who;$("#keyIn").value=secret||"";$("#btnBack").hidden=!(who&&secret);syncPick();checkEnter()}
+$$(".person").forEach(b=>b.onclick=()=>{pendingWho=b.dataset.who;syncPick();checkEnter()});
+$("#keyIn").addEventListener("input",checkEnter);
+$("#keyIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("#btnEnter").disabled)$("#btnEnter").click()});
+$("#btnEnter").onclick=()=>{const k=normKey($("#keyIn").value);if(!pendingWho||k.length<4)return;
+  LS.set("who",pendingWho);LS.set("secret",k);location.reload()}; // se recarga para empezar limpio con la persona y la clave nuevas
+$("#btnBack").onclick=()=>{editing=false;renderAll();wake()};
+
+// ---------- ajustes ----------
 $("#btnSettings").onclick=()=>{updateHeader();$("#settings").showModal()};
 $("#closeSettings").onclick=()=>$("#settings").close();
 $("#settings").addEventListener("click",e=>{if(e.target===$("#settings"))$("#settings").close()});
 $("#mirror").checked=settings.mirror;
 $("#mirror").onchange=e=>{settings.mirror=e.target.checked;LS.set("settings",settings);renderAll()};
+$("#btnKey").onclick=()=>{$("#settings").close();editing=true;stopListen();setLink("off");showSetup();renderAll()};
 $("#btnSwitch").onclick=function(){
   if(!who){$("#settings").close();return}
   if(!switchArm){switchArm=Date.now();this.textContent=`Tocá otra vez para ser ${otherName()}`;setTimeout(()=>{switchArm=0;updateHeader()},3000);return}
-  LS.set("who",other());if(isOpen())try{conn.send({t:"bye"})}catch(e){}location.reload()};
+  LS.set("who",other());location.reload()};
 $("#btnClear").onclick=function(){if(Date.now()-clearArm>3000){clearArm=Date.now();this.textContent="Tocá otra vez para borrar todo";setTimeout(()=>this.textContent="Borrar los mensajes",3000);return}
   msgs.length=0;byId.clear();urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();db.clear();renderAll();this.textContent="Borrar los mensajes";clearArm=0;$("#settings").close();toast("Mensajes borrados de este celular")};
+$("#bannerClose").onclick=()=>$("#banner").hidden=true;
 
 // ---------- arranque ----------
 async function start(){
-  try{const all=await db.all();(all||[]).sort((a,b)=>a.ts-b.ts).forEach(m=>{msgs.push(m);byId.set(m.id,m)})}catch(e){}
-  renderAll();startPeer()}
+  if(!who||!secret){showSetup();renderAll();return}
+  sinceTs=LS.get("since-"+who,0);otherSeen=LS.get("seen-"+who,0);
+  try{const all=await db.all();(all||[]).sort((a,b)=>a.ts-b.ts).forEach(m=>{if(m.status==="delivered")m.status="sent";msgs.push(m);byId.set(m.id,m)})}catch(e){}
+  renderAll();
+  try{crypt=await deriveKeys(secret)}catch(e){lastErr="este navegador no permite cifrar (hace falta https)";updateHeader();return}
+  updateHeader();listen();pump();queueRead()}
 updateMain();
-setInterval(keepAlive,5000);
-setInterval(heartbeat,4000);
-if(who)start();else renderAll();
+start();
 </script>
 </body>
 </html>

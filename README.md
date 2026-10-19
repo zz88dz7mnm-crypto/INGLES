@@ -1,31 +1,52 @@
 # Chat Espejo
 
-Chat privado para dos personas, **Juan y Marti**, al estilo de las apps de mensajería pero con los
-lados invertidos: **tus mensajes aparecen a la izquierda** y los del otro a la derecha (se puede
-volver a lo normal en Ajustes → modo espejo).
+Chat privado para dos personas, **Juan y Marti**, con los lados invertidos: **tus mensajes van a la
+izquierda** y los del otro a la derecha (se puede volver a lo normal en Ajustes → modo espejo).
 
-- Sin códigos ni links: la primera vez cada uno toca "Soy Juan" o "Soy Marti" y queda guardado.
-- Mensajes de texto, fotos y notas de voz (tocá el micrófono para grabar y la flecha para mandar).
-- Tildes de entregado y leído, aviso de "escribiendo…" y "grabando audio…".
+- Mensajes de texto, fotos y notas de voz.
+- Tildes de enviado (✓) y leído (✓✓ azul).
 - Modo oscuro automático.
+- Sin cuentas ni instalación: es una sola página, `index.html`.
 
 ## Cómo se usa
 
-1. Los dos abren la misma página.
-2. Uno toca **Soy Juan** y el otro **Soy Marti**.
-3. Listo: se conectan solos, ahora y cada vez que abran la página.
+1. Los dos abren la misma dirección (https://ingles-marti.vercel.app).
+2. Cada uno toca **Soy Juan** o **Soy Marti**.
+3. Los dos escriben la **misma clave**: cualquier frase, por ejemplo `pelota azul 77`. Se pone una
+   sola vez y queda guardada en el celular. No importan las mayúsculas, las tildes ni los espacios
+   de más.
 
-Los mensajes viajan directo entre los dos teléfonos (WebRTC, cifrado). El servidor público gratuito
-de [PeerJS](https://peerjs.com) se usa solo para que los dos celulares se encuentren. Cada celular
-guarda su propia copia de la conversación en el navegador.
+Si no se ven los mensajes, lo primero es comparar la clave en Ajustes (los tres puntitos): tiene que
+ser igual en los dos celulares.
 
-**Importante:** los mensajes llegan cuando los dos tienen la página abierta. Si el otro no está, tu
-mensaje queda con un relojito y se manda solo cuando entra. No hay notificaciones con la página
-cerrada.
+## Cómo funciona
 
-## Publicarla con GitHub Pages
+Los mensajes no van directo de un celular al otro. Pasan por un buzón público y gratuito
+([ntfy.sh](https://ntfy.sh)) que los guarda hasta que el otro abra la página. Por eso llegan aunque
+el otro tenga la página cerrada.
 
-En GitHub: **Settings → Pages → Build and deployment → Deploy from a branch**, elegí la rama `main`
-y la carpeta `/ (root)`, y guardá. En un par de minutos queda en
-`https://zz88dz7mnm-crypto.github.io/INGLES/`. Hace falta HTTPS para el micrófono, y GitHub Pages ya
-lo trae.
+- Cada mensaje, foto y audio se cifra en el celular (AES-GCM) con una clave que sale de la frase
+  compartida. El buzón solo ve datos cifrados.
+- El nombre de cada buzón también sale de la frase, así que sin la clave no se puede encontrar ni
+  leer la conversación.
+- Cada celular guarda su copia de la conversación en el navegador (IndexedDB).
+- La página se queda escuchando su buzón en tiempo real. Si esa conexión falla, consulta cada pocos
+  segundos.
+
+## Límites
+
+- El buzón guarda los mensajes **12 horas** y las fotos y audios **3 horas**. Si el otro abre la
+  página después, llega el texto pero no el archivo.
+- ntfy.sh limita los pedidos de cada conexión. En un chat normal no se llega, y si pasa, la página
+  avisa y reintenta sola.
+- No hay notificaciones con la página cerrada.
+- El nombre elegido, la clave y el historial se guardan por dirección web. Si abren la página desde
+  otra dirección, empiezan de cero.
+
+## Publicarla
+
+Es un sitio estático sin proceso de armado. Sirve cualquier hosting (Vercel, GitHub Pages, Netlify).
+Hace falta `https` para el micrófono y el cifrado.
+
+Para usar otro servidor ntfy (por ejemplo uno propio), definir antes del script
+`window.CHAT_RELAY = "https://mi-servidor"`.
