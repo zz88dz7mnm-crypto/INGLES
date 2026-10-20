@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inglés: Past Perfect y Trabajo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap">
+<style>
+/* Cuaderno de clase: hoja rayada, tinta magenta para gramática y azul para vocabulario */
+:root{
+  --bg:#f6f4fb; --paper:#ffffff; --ink:#1f1b2e; --muted:#6b6580;
+  --pink:#d6246e; --pink-soft:#fde7f0; --blue:#2f4fd8; --blue-soft:#e6ebff;
+  --ok:#11845b; --ok-soft:#e2f6ec; --bad:#c62828; --bad-soft:#fdeaea; --line:#e4e0ef;
+  --display:"Fraunces",Georgia,serif; --body:"Nunito Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1d1a28; --ink:#f0edf8; --muted:#a49fb8;
+  --pink:#ff5c9a; --pink-soft:#3a1c2b; --blue:#8aa2ff; --blue-soft:#1f2747;
+  --ok:#4fd39b; --ok-soft:#173527; --bad:#ff7a7a; --bad-soft:#3a1d1d; --line:#2e2a3d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1d1a28; --ink:#f0edf8; --muted:#a49fb8;
+  --pink:#ff5c9a; --pink-soft:#3a1c2b; --blue:#8aa2ff; --blue-soft:#1f2747;
+  --ok:#4fd39b; --ok-soft:#173527; --bad:#ff7a7a; --bad-soft:#3a1d1d; --line:#2e2a3d; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--body)}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+header.hero{padding-block:24px 8px}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--pink)}
+h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800}
+h1 em{font-style:normal;color:var(--pink)}
+.lead{color:var(--muted);max-width:60ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:8px;flex-wrap:wrap;padding-block:12px;border-bottom:1px solid var(--line);margin-bottom:24px}
+nav.tabs a{text-decoration:none;color:var(--ink);font-weight:700;font-size:.9rem;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper)}
+nav.tabs a:hover,nav.tabs a:focus-visible{border-color:var(--pink);color:var(--pink);outline:none}
+.score{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;color:var(--blue);align-self:center}
+section{margin-block:40px}
+section>h2{font-size:clamp(1.5rem,4vw,2.1rem);margin-bottom:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.formula{display:flex;gap:10px;align-items:flex-start}
+.sign{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.2rem;border:2px solid var(--pink);color:var(--pink)}
+.formula div{min-width:0}
+.formula b{color:var(--pink)}
+.ex{color:var(--muted);font-size:.93rem}
+.ex i{color:var(--ink);font-style:normal;font-weight:600}
+mark{background:var(--pink-soft);color:var(--pink);font-weight:800;padding:0 4px;border-radius:4px}
+mark.b{background:var(--blue-soft);color:var(--blue)}
+/* timeline */
+.tl{overflow-x:auto}
+.tl svg{display:block;min-width:520px;width:100%;height:auto}
+.rules{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:12px}
+.rule h3{font-size:1.1rem;margin-bottom:6px}
+.tip{border-left:4px solid var(--blue);background:var(--blue-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td:nth-child(3){color:var(--pink);font-weight:800}
+.scroll{overflow-x:auto}
+/* exercises */
+.exercise{margin-top:16px}
+.exercise h3{font-size:1.25rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font-family:var(--body);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--paper);background:var(--pink);padding:2px 8px;border-radius:999px}
+.tag.b{background:var(--blue)}
+.q{padding-block:14px;border-bottom:1px dashed var(--line)}
+.q:last-of-type{border-bottom:0}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer}
+.opt{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:6px 14px;font-weight:700}
+.opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--blue);outline:none}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{font-size:.92rem;margin-top:8px;padding:8px 12px;border-radius:8px}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fill{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fill input{font:inherit;padding:6px 10px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.fill input:focus{outline:none;border-color:var(--blue)}
+.btn{border:0;border-radius:10px;padding:8px 16px;font-weight:800;background:var(--pink);color:var(--paper)}
+.btn.ghost{background:transparent;color:var(--pink);border:2px solid var(--pink)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.result{font-weight:800;font-variant-numeric:tabular-nums}
+/* vocab */
+.vocab{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.flip{perspective:800px;height:110px;border:0;background:none;padding:0;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .k{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.flip .k{transform:rotateY(180deg);background:var(--blue-soft);color:var(--blue);font-weight:800}
+.flip .f strong{font-size:1.02rem}
+.flip .f small,.flip .k small{color:var(--muted);font-weight:600;font-size:.78rem}
+.flip u{text-decoration-color:var(--pink);text-decoration-thickness:3px;text-underline-offset:3px}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.path span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:.88rem;font-weight:700}
+.path span b{color:var(--pink)}
+.path i{color:var(--muted);font-style:normal}
+.say{border:0;background:none;color:var(--blue);font-weight:800;padding:0;margin-left:4px}
+footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:48px}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Inglés · Clase de repaso</div>
+  <h1><em>Past Perfect</em> vs Past Simple y vocabulario de trabajo</h1>
+  <p class="lead">Leé la teoría, mirá los ejemplos y después hacé los ejercicios. Cada respuesta te dice si está bien y por qué. Tocá las tarjetas de vocabulario para ver la traducción.</p>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <a href="#teoria">Past Perfect</a>
+  <a href="#vs">vs Past Simple</a>
+  <a href="#vocab">Vocabulario</a>
+  <a href="#ejercicios">Ejercicios</a>
+  <span class="score" id="score">0 / 0</span>
+</nav>
+
+<section id="teoria">
+  <h2>Past Perfect: la estructura</h2>
+  <p>Lo usamos para una acción que pasó <strong>antes</strong> de otra acción en el pasado. Es "el pasado del pasado".</p>
+  <div class="grid">
+    <div class="card formula"><span class="sign">+</span><div>
+      Subject + <b>had</b> + verbo en <b>3ª columna</b>
+      <div class="ex"><i>She had finished her CV.</i><br>Ella había terminado su CV.</div></div></div>
+    <div class="card formula"><span class="sign">−</span><div>
+      Subject + <b>hadn't</b> + verbo 3ª col.
+      <div class="ex"><i>They hadn't signed the contract.</i><br>No habían firmado el contrato.</div></div></div>
+    <div class="card formula"><span class="sign">?</span><div>
+      <b>Had</b> + subject + verbo 3ª col.?
+      <div class="ex"><i>Had you worked as a waiter?</i><br>¿Habías trabajado de mesero?<br>Yes, I had. / No, I hadn't.</div></div></div>
+  </div>
+  <p class="tip"><strong>Ojo:</strong> <em>had</em> es igual para todos: I, you, he, she, it, we, they. La forma corta es <strong>'d</strong>: <em>I'd lost my job</em> = <em>I had lost my job</em>.</p>
+
+  <h3 style="margin-top:24px">Verbos de la 3ª columna que vas a usar</h3>
+  <div class="card scroll" style="margin-top:8px">
+    <table>
+      <thead><tr><th>Verbo</th><th>Past simple</th><th>Past participle</th><th>Español</th></tr></thead>
+      <tbody id="verbs"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="vs">
+  <h2>Past Perfect vs Past Simple</h2>
+  <p>Cuando hay dos acciones en el pasado, la que pasó <strong>primero</strong> va en Past Perfect y la que pasó <strong>después</strong> en Past Simple.</p>
+  <div class="card tl" role="img" aria-label="Línea de tiempo: primero had already started, después I arrived, luego ahora">
+    <svg viewBox="0 0 600 150">
+      <line x1="20" y1="80" x2="580" y2="80" stroke="var(--muted)" stroke-width="3"/>
+      <polygon points="580,72 596,80 580,88" fill="var(--muted)"/>
+      <circle cx="170" cy="80" r="12" fill="var(--pink)"/>
+      <circle cx="380" cy="80" r="12" fill="var(--blue)"/>
+      <text x="170" y="40" text-anchor="middle" font-weight="800" fill="var(--pink)" font-size="15">① PAST PERFECT</text>
+      <text x="170" y="120" text-anchor="middle" fill="var(--ink)" font-size="15">the interview had started</text>
+      <text x="380" y="40" text-anchor="middle" font-weight="800" fill="var(--blue)" font-size="15">② PAST SIMPLE</text>
+      <text x="380" y="120" text-anchor="middle" fill="var(--ink)" font-size="15">I arrived</text>
+      <text x="560" y="120" text-anchor="end" fill="var(--muted)" font-size="14">NOW</text>
+    </svg>
+    <p class="ex" style="margin:8px 0 0"><i>When I arrived, the interview had started.</i> = Cuando llegué, la entrevista ya había empezado (empezó antes de que yo llegara).</p>
+  </div>
+
+  <div class="rules">
+    <div class="card rule"><h3><mark>After</mark> → Past Perfect</h3>
+      <p class="ex">Lo que va después de <em>after</em> pasó primero.<br><i>After I <mark>had written</mark> my CV, I applied for the job.</i></p></div>
+    <div class="card rule"><h3><mark class="b">Before</mark> → Past Simple</h3>
+      <p class="ex">Después de <em>before</em> va la acción posterior.<br><i>Before I <mark class="b">went</mark> to the interview, I had prepared a lot.</i></p></div>
+    <div class="card rule"><h3><mark class="b">When</mark> → Past Simple</h3>
+      <p class="ex">Después de <em>when</em> va Past Simple; la otra parte puede ir en Past Perfect.<br><i>When she <mark class="b">called</mark>, I had already accepted the offer.</i></p></div>
+  </div>
+  <p class="tip"><strong>Cambia el significado:</strong> <em>When I arrived, the meeting <u>started</u>.</em> (empezó en el momento que llegué) vs <em>When I arrived, the meeting <u>had started</u>.</em> (ya había empezado antes). Palabras que suelen ir con Past Perfect: <strong>already, just, never… before, by the time</strong>.</p>
+</section>
+
+<section id="vocab">
+  <h2>Vocabulario de trabajo</h2>
+  <p>Tocá cada tarjeta para darla vuelta. Con 🔊 escuchás la pronunciación. La palabra subrayada es el verbo que tenés que recordar.</p>
+  <h3 style="margin-top:16px;font-size:1.1rem">Palabras y expresiones</h3>
+  <div class="vocab" id="words" style="margin-top:8px"></div>
+  <h3 style="margin-top:24px;font-size:1.1rem">Collocations: verbo + trabajo</h3>
+  <div class="vocab" id="colls" style="margin-top:8px"></div>
+  <div class="card" style="margin-top:16px">
+    <h3 style="font-size:1.1rem">El camino de un trabajo, en orden</h3>
+    <div class="path">
+      <span><b>look</b> for a job</span><i>→</i><span><b>write</b> a CV</span><i>→</i><span><b>apply</b> for a job vacancy</span><i>→</i><span><b>prepare</b> for a job interview</span><i>→</i><span>they <b>interview</b> you</span><i>→</i><span>they <b>offer</b> you a job</span><i>→</i><span><b>accept</b> the job offer</span><i>→</i><span><b>sign</b> a contract</span><i>→</i><span><b>get</b> a job</span><i>→</i><span>they <b>train</b> you</span><i>→</i><span><b>get</b> work experience</span>
+    </div>
+  </div>
+</section>
+
+<section id="ejercicios">
+  <h2>Ejercicios</h2>
+  <p>Cuatro ejercicios, de lo más fácil a lo más difícil. Podés reiniciar cada uno las veces que quieras.</p>
+  <div id="exercises"></div>
+</section>
+
+<footer>Hecho para practicar · Past Perfect, Past Simple y Work vocabulary</footer>
+</div>
+
+<script>
+const VERBS=[["be","was / were","been","ser / estar"],["go","went","gone","ir"],["do","did","done","hacer"],["have","had","had","tener"],["get","got","got / gotten","conseguir"],["lose","lost","lost","perder"],["write","wrote","written","escribir"],["leave","left","left","irse / dejar"],["take","took","taken","tomar"],["give","gave","given","dar"],["see","saw","seen","ver"],["eat","ate","eaten","comer"],["begin","began","begun","empezar"],["find","found","found","encontrar"],["meet","met","met","conocer"],["forget","forgot","forgotten","olvidar"],["apply","applied","applied","postularse (regular)"],["work","worked","worked","trabajar (regular)"],["sign","signed","signed","firmar (regular)"]];
+document.getElementById("verbs").innerHTML=VERBS.map(v=>`<tr><td>${v[0]}</td><td>${v[1]}</td><td>${v[2]}</td><td>${v[3]}</td></tr>`).join("");
+
+const WORDS=[["reckon","creer, suponer · contar / calcular","I reckon he'll get the job."],["tiring","cansador, agotador","Working long hours is tiring."],["give it a go","hacé la prueba, intentalo","You've never been a waiter? Give it a go!"],["handmade goods seller","vendedor de productos hechos a mano","She is a handmade goods seller."],["waiter","mesero / mozo","The waiter had worked there for years."]];
+const COLLS=[["prepare","for a job interview","prepararse para una entrevista"],["interview","someone for a job","entrevistar a alguien para un trabajo"],["train","someone to do a job","capacitar a alguien"],["get","a job","conseguir un trabajo"],["accept","a job offer","aceptar una oferta de trabajo"],["offer","someone a job","ofrecerle un trabajo a alguien"],["employ","someone to do a job","contratar / emplear a alguien"],["lose","your job","perder tu trabajo"],["apply","for a job vacancy","postularse a una vacante"],["write","a CV","escribir un currículum"],["look","for a job","buscar trabajo"],["work","long hours","trabajar muchas horas"],["sign","a contract","firmar un contrato"],["get","work experience","conseguir experiencia laboral"],["get on","well with colleagues","llevarse bien con los compañeros"],["get","time off","conseguir días libres"]];
+const canSpeak="speechSynthesis" in window;
+function say(t){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.9;speechSynthesis.speak(u)}
+function card(front,sub,back,speak){const b=document.createElement("div");b.className="flip";b.tabIndex=0;b.setAttribute("role","button");
+  b.innerHTML=`<div class="in"><div class="f"><strong>${front}</strong><small>${sub}</small></div><div class="k">${back}</div></div>`;
+  const t=()=>b.classList.toggle("on");b.onclick=e=>{if(e.target.closest(".say"))return;t()};b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();t()}};
+  if(canSpeak){const s=document.createElement("button");s.className="say";s.type="button";s.textContent="🔊";s.setAttribute("aria-label","Escuchar "+speak);s.onclick=()=>say(speak);b.querySelector(".f strong").append(s)}
+  return b}
+WORDS.forEach(w=>document.getElementById("words").append(card(w[0],"tocá para traducir",`${w[1]}<small>${w[2]}</small>`,w[0]+". "+w[2])));
+COLLS.forEach(c=>document.getElementById("colls").append(card(`<u>${c[0]}</u> ${c[1]}`,"tocá para traducir",c[2],c[0]+" "+c[1])));
+
+// ---------- ejercicios ----------
+const EX=[
+ {title:"¿Past Simple o Past Perfect?",tag:"Gramática",type:"mc",intro:"Elegí la forma correcta.",items:[
+  ["When I arrived at the office, the meeting ___.",["had already started","already started"],0,"Empezó antes de que llegaras → Past Perfect."],
+  ["After she ___ the contract, she started work.",["signed","had signed"],1,"Después de after va Past Perfect: primero firmó."],
+  ["Before he ___ for the job, he had written a new CV.",["applied","had applied"],0,"Después de before va Past Simple."],
+  ["I ___ a waiter before I became a handmade goods seller.",["had been","have been"],0,"Primero fue mesero → had been."],
+  ["They offered me the job when I ___ the interview.",["had finished","finish"],0,"Terminé la entrevista antes de la oferta → had finished."],
+  ["Yesterday I ___ a job offer.",["had accepted","accepted"],1,"Una sola acción en el pasado → Past Simple."],
+  ["By the time I got to the restaurant, the waiter ___ home.",["went","had gone"],1,"By the time + Past Perfect para lo que pasó antes."],
+  ["She lost her job because she ___ well with her colleagues.",["hadn't got on","didn't got on"],0,"Primero no se llevaba bien, después la echaron. Negativo: hadn't + participio."]]},
+ {title:"Completá con had + participio",tag:"Gramática",type:"fill",intro:"Escribí la forma del Past Perfect del verbo entre paréntesis. Fijate si es afirmativa (+), negativa (−) o pregunta (?).",items:[
+  ["(+) She ___ (work) long hours before she got time off.",["had worked","'d worked"],"had + worked (regular)."],
+  ["(−) I ___ (write) a CV before that interview.",["hadn't written","had not written"],"Negativo: hadn't + written (write-wrote-written)."],
+  ["(?) ___ (you / get) work experience before you applied?",["had you got","had you gotten"],"Pregunta: Had + you + got/gotten."],
+  ["(+) They ___ (lose) their jobs before the company closed.",["had lost","'d lost"],"lose-lost-lost."],
+  ["(−) He ___ (sign) the contract when they called him.",["hadn't signed","had not signed"],"Negativo: hadn't signed."],
+  ["(+) We ___ (prepare) for the job interview for weeks.",["had prepared","'d prepared"],"prepare es regular: prepared."]]},
+ {title:"Elegí el verbo correcto",tag:"Vocabulario",type:"mc",blue:true,intro:"Completá la collocation de trabajo.",items:[
+  ["___ for a job vacancy",["apply","sign","get"],0,"apply for a job vacancy = postularse a una vacante."],
+  ["___ a contract",["write","sign","offer"],1,"sign a contract = firmar un contrato."],
+  ["___ on well with colleagues",["get","look","work"],0,"get on well with = llevarse bien con."],
+  ["___ a CV",["prepare","write","train"],1,"write a CV = escribir un currículum."],
+  ["___ for a job",["look","lose","accept"],0,"look for = buscar."],
+  ["___ someone to do a job",["train","apply","get"],0,"train someone = capacitar a alguien."],
+  ["___ time off",["work","get","offer"],1,"get time off = conseguir días libres."],
+  ["___ long hours",["work","sign","employ"],0,"work long hours = trabajar muchas horas."],
+  ["\"Working at night is very ___.\"",["tiring","reckon","waiter"],0,"tiring = cansador."],
+  ["\"I ___ she will accept the offer.\" (creo)",["reckon","give it a go","train"],0,"reckon = creer, suponer."]]},
+ {title:"Desafío final: todo junto",tag:"Mix",type:"mc",intro:"Gramática y vocabulario en la misma frase.",items:[
+  ["After I ___ for the job vacancy, they interviewed me.",["had applied","had apply","applied had"],0,"had + participio (applied)."],
+  ["___ she ever worked as a waiter before?",["Has","Had","Did"],1,"Pregunta en Past Perfect: Had + sujeto + participio."],
+  ["When the manager called, I ___ the job offer.",["had already accepted","already had accept","have accepted"],0,"Ya había aceptado antes de la llamada."],
+  ["He was tired because he ___ long hours all week.",["had worked","has work","had working"],0,"Primero trabajó, después estaba cansado."],
+  ["They ___ me a job before I finished university.",["had offer","had offered","offered had"],1,"offer es regular: offered."],
+  ["The company ___ her to do the job before she started.",["had trained","had train","trained had"],0,"train → trained."]]}
+];
+const scoreEl=document.getElementById("score");
+const state=EX.map(e=>({done:0,ok:0,n:e.items.length}));
+function updScore(){const ok=state.reduce((a,s)=>a+s.ok,0),n=state.reduce((a,s)=>a+s.n,0);scoreEl.textContent=`★ ${ok} / ${n}`}
+const norm=s=>s.toLowerCase().replace(/[’`]/g,"'").replace(/\s+/g," ").replace(/[.?!]/g,"").trim();
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function render(i){
+  const e=EX[i],box=document.getElementById("ex"+i),s=state[i];s.done=0;s.ok=0;updScore();
+  box.innerHTML=`<h3><span class="tag ${e.blue?"b":""}">${e.tag}</span> ${i+1}. ${e.title}</h3><p class="ex">${e.intro}</p><div class="qs"></div>
+  <div class="bar"><span class="result" aria-live="polite"></span><button class="btn ghost" type="button">Reiniciar</button></div>`;
+  box.querySelector(".btn.ghost").onclick=()=>render(i);
+  const qs=box.querySelector(".qs"),res=box.querySelector(".result");
+  const mark=(good,el,msg)=>{s.done++;if(good)s.ok++;const f=document.createElement("div");f.className="fb "+(good?"ok":"bad");f.textContent=(good?"✔ ¡Bien! ":"✘ ")+msg;el.append(f);
+    res.textContent=`${s.ok} / ${s.n} correctas`+(s.done===s.n?(s.ok===s.n?" · ¡Perfecto! 🎉":s.ok>=s.n*.7?" · ¡Muy bien!":" · Repasá la teoría y probá de nuevo"):"");updScore()};
+  e.items.forEach((it,k)=>{
+    const q=document.createElement("div");q.className="q";
+    if(e.type==="mc"){
+      q.innerHTML=`<p>${it[0].replace("___","<mark>___</mark>")}</p><div class="opts"></div>`;
+      const opts=q.querySelector(".opts");
+      shuffle(it[1].map((t,j)=>[t,j])).forEach(([t,j])=>{const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=t;
+        b.onclick=()=>{opts.querySelectorAll("button").forEach(x=>{x.disabled=true;if(+x.dataset.j===it[2])x.classList.add("ok")});
+          if(j!==it[2])b.classList.add("bad");mark(j===it[2],q,(j===it[2]?"":"Correcta: "+it[1][it[2]]+". ")+it[3])};
+        b.dataset.j=j;opts.append(b)});
+    }else{
+      const id=`f${i}_${k}`;
+      q.innerHTML=`<p><label for="${id}">${it[0].replace(/___/g,"<mark>___</mark>")}</label></p><form class="fill"><input id="${id}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribí tu respuesta"><button class="btn" type="submit">Comprobar</button></form>`;
+      const f=q.querySelector("form"),inp=q.querySelector("input");
+      f.onsubmit=ev=>{ev.preventDefault();if(!inp.value.trim())return;const good=it[1].some(a=>norm(a)===norm(inp.value));inp.disabled=true;f.querySelector("button").disabled=true;
+        inp.style.borderColor=good?"var(--ok)":"var(--bad)";mark(good,q,(good?"":"Correcta: "+it[1][0]+". ")+it[2])};
+    }
+    qs.append(q)});
+}
+const host=document.getElementById("exercises");
+EX.forEach((e,i)=>{const d=document.createElement("div");d.className="card exercise";d.id="ex"+i;host.append(d);render(i)});
+</script>
+</body>
+</html>

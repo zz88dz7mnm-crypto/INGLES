@@ -50,3 +50,9 @@ Hace falta `https` para el micrófono y el cifrado.
 
 Para usar otro servidor ntfy (por ejemplo uno propio), definir antes del script
 `window.CHAT_RELAY = "https://mi-servidor"`.
+
+## Práctica de inglés
+
+`ingles.html` (https://ingles-marti.vercel.app/ingles.html) es la página de ejercicios de inglés:
+Past Perfect vs Past Simple y vocabulario de trabajo, con teoría, línea de tiempo y ejercicios con
+puntaje.
