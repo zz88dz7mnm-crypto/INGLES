@@ -2,526 +2,287 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17202a" media="(prefers-color-scheme: dark)">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Chat Espejo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inglés: Past Perfect y Trabajo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap">
 <style>
-/* Chat privado de Juan y Marti, con los lados invertidos: lo tuyo a la izquierda, lo del otro a la derecha */
+/* Cuaderno de clase: hoja rayada, tinta magenta para gramática y azul para vocabulario */
 :root{
-  --wall:#e9edf2; --dot:#d5dce5; --top:#ffffff; --bar:#f3f5f8; --field:#ffffff;
-  --ink:#111b21; --muted:#667781; --line:#dbe1e8;
-  --mine:#d6e2ff; --theirs:#ffffff; --accent:#2f5bea; --accent-ink:#ffffff; --sel:#e3ebff; --read:#2f5bea; --rec:#e5383b;
-  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --bg:#f6f4fb; --paper:#ffffff; --ink:#1f1b2e; --muted:#6b6580;
+  --pink:#d6246e; --pink-soft:#fde7f0; --blue:#2f4fd8; --blue-soft:#e6ebff;
+  --ok:#11845b; --ok-soft:#e2f6ec; --bad:#c62828; --bad-soft:#fdeaea; --line:#e4e0ef;
+  --display:"Fraunces",Georgia,serif; --body:"Nunito Sans",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --wall:#0e1318; --dot:#19212b; --top:#17202a; --bar:#141b23; --field:#1f2933;
-  --ink:#e9edef; --muted:#8a9aa6; --line:#283440;
-  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --sel:#1e2a52; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}}
+  --bg:#14121c; --paper:#1d1a28; --ink:#f0edf8; --muted:#a49fb8;
+  --pink:#ff5c9a; --pink-soft:#3a1c2b; --blue:#8aa2ff; --blue-soft:#1f2747;
+  --ok:#4fd39b; --ok-soft:#173527; --bad:#ff7a7a; --bad-soft:#3a1d1d; --line:#2e2a3d; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --wall:#0e1318; --dot:#19212b; --top:#17202a; --bar:#141b23; --field:#1f2933;
-  --ink:#e9edef; --muted:#8a9aa6; --line:#283440;
-  --mine:#24418a; --theirs:#1f2933; --accent:#6b8cff; --accent-ink:#0b1020; --sel:#1e2a52; --read:#8fc1ff; --rec:#ff5c5f; color-scheme:dark}
+  --bg:#14121c; --paper:#1d1a28; --ink:#f0edf8; --muted:#a49fb8;
+  --pink:#ff5c9a; --pink-soft:#3a1c2b; --blue:#8aa2ff; --blue-soft:#1f2747;
+  --ok:#4fd39b; --ok-soft:#173527; --bad:#ff7a7a; --bad-soft:#3a1d1d; --line:#2e2a3d; color-scheme:dark}
 *{box-sizing:border-box}
-[hidden]{display:none!important}
-html,body{height:100%;margin:0}
-body{background:var(--wall);color:var(--ink);font:15px/1.4 var(--font);overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-svg{display:block}
-#app{height:100%;height:100dvh;display:flex;flex-direction:column;max-width:960px;margin:0 auto;background:var(--wall);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.4px);background-size:22px 22px;position:relative}
-
-/* cabecera */
-.top{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:var(--top);border-bottom:1px solid var(--line);z-index:2}
-.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:18px;flex:none;text-transform:uppercase}
-.who{flex:1;min-width:0}
-.name{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.status{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.status.on{color:var(--accent);font-weight:600}
-.icon{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;flex:none}
-.icon:hover{background:var(--bar)}
-.icon svg{width:24px;height:24px;fill:currentColor}
-.banner{display:flex;gap:10px;align-items:center;padding:8px 6px 8px 14px;background:var(--bar);border-bottom:1px solid var(--line);font-size:14px}
-.banner span{flex:1;min-width:0}
-
-/* mensajes */
-.scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:10px max(12px,4%) 14px;-webkit-overflow-scrolling:touch}
-.msgs{display:flex;flex-direction:column;margin-top:auto}
-.note{align-self:center;text-align:center;background:var(--top);color:var(--muted);font-size:12.5px;padding:6px 12px;border-radius:8px;margin:6px 0;max-width:90%;box-shadow:0 1px 1px rgba(0,0,0,.08)}
-.day{align-self:center;background:var(--top);color:var(--muted);font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px;margin:12px 0 4px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
-.row{display:flex;margin-top:8px}
-.row.cont{margin-top:2px}
-.row.left{justify-content:flex-start}
-.row.right{justify-content:flex-end}
-.bubble{max-width:min(80%,520px);min-width:0;padding:6px 8px 6px 10px;border-radius:10px;background:var(--theirs);box-shadow:0 1px .5px rgba(0,0,0,.13);position:relative}
-.row.mine .bubble{background:var(--mine)}
-.row.left:not(.cont) .bubble{border-top-left-radius:3px}
-.row.right:not(.cont) .bubble{border-top-right-radius:3px}
-.text{white-space:pre-wrap;overflow-wrap:anywhere}
-.text a{color:var(--accent)}
-.text.missing{color:var(--muted);font-style:italic}
-.meta{float:right;display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--muted);margin:8px 0 -4px 12px;line-height:1;font-variant-numeric:tabular-nums}
-.tk{width:17px;height:12px;color:var(--muted)}
-.tk.read{color:var(--read)}
-.tk.fail{color:var(--rec)}
-.bubble.media{padding:4px}
-.photo{display:block;width:260px;max-width:100%;height:auto;max-height:380px;object-fit:cover;border-radius:7px;cursor:zoom-in;background:var(--line)}
-.bubble.media .meta{position:absolute;right:9px;bottom:9px;margin:0;float:none;color:#fff;background:rgba(0,0,0,.4);padding:3px 6px;border-radius:8px}
-.bubble.media .meta .tk{color:#fff}
-.bubble.media .meta .tk.read{color:#9fd0ff}
-.voice{display:flex;align-items:center;gap:10px;width:250px;max-width:100%;padding:2px 0 14px}
-.play{width:40px;height:40px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
-.play svg{width:22px;height:22px;fill:currentColor}
-.track{flex:1;height:22px;display:flex;align-items:center;cursor:pointer;min-width:0}
-.track i{display:block;height:4px;width:100%;border-radius:4px;background:var(--line);overflow:hidden}
-.track b{display:block;height:100%;width:0;background:var(--accent)}
-.vtime{position:absolute;left:60px;bottom:6px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-
-/* barra para escribir */
-.composer{display:flex;align-items:flex-end;gap:8px;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--bar);border-top:1px solid var(--line);z-index:2}
-.field{flex:1;min-width:0;background:var(--field);border-radius:23px;display:flex;align-items:center;padding:0 16px;min-height:46px;border:1px solid var(--line)}
-.field textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.35;resize:none;max-height:124px;padding:12px 0;outline:none}
-.round{width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
-.round svg{width:24px;height:24px;fill:currentColor}
-.composer .icon{width:46px;height:46px}
-.rec{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:var(--field);border-radius:23px;min-height:46px;padding:0 6px 0 4px;border:1px solid var(--line)}
-.rec .icon{color:var(--rec)}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--rec);animation:blink 1s infinite;flex:none}
-.rec time{font-variant-numeric:tabular-nums;font-weight:700}
-.rec span{color:var(--muted);font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@keyframes blink{50%{opacity:.25}}
-
-/* primera vez y ajustes */
-.setup{margin:auto 0;align-self:center;width:100%;max-width:420px;background:var(--top);border-radius:16px;padding:22px 20px;display:grid;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.setup h1{margin:0;font-size:24px;text-align:center}
-.setup p,.panel p{margin:0;color:var(--muted);font-size:14px}
-.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.person{display:grid;justify-items:center;gap:10px;padding:18px 8px 14px;border-radius:14px;border:2px solid var(--line);background:var(--field);font-weight:800;font-size:17px}
-.person:hover,.person:focus-visible{border-color:var(--accent);outline:none}
-.person[aria-pressed="true"]{border-color:var(--accent);background:var(--sel)}
-.person .avatar{width:64px;height:64px;font-size:28px}
-.group{display:grid;gap:10px}
-.lbl{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.txt{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);min-width:0}
-.keybox{font:700 18px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:10px 12px;border:1.5px dashed var(--line);border-radius:10px;overflow-wrap:anywhere;user-select:all}
-.btnrow{display:flex;gap:8px;flex-wrap:wrap}
-.btn{flex:1 1 auto;border:0;border-radius:10px;padding:12px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
-.btn:disabled{opacity:.45;cursor:default}
-.btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
-.btn.danger{background:transparent;color:var(--rec);border:1.5px solid var(--rec)}
-.switch{display:flex;align-items:center;gap:12px;cursor:pointer}
-.switch input{width:20px;height:20px;accent-color:var(--accent);flex:none}
-dialog{border:0;border-radius:16px;padding:0;width:min(440px,calc(100% - 24px));max-height:calc(100dvh - 24px);background:var(--top);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.35)}
-dialog::backdrop{background:rgba(0,0,0,.45)}
-.panel{display:grid;gap:18px;padding:18px 20px 20px}
-.panel header{display:flex;align-items:center;justify-content:space-between}
-.panel h2{margin:0;font-size:19px}
-.panel hr{border:0;border-top:1px solid var(--line);margin:0}
-
-/* visor de fotos y avisos */
-.viewer{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:16px;cursor:zoom-out}
-.viewer img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--top);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.25)}
-@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--body)}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+header.hero{padding-block:24px 8px}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--pink)}
+h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800}
+h1 em{font-style:normal;color:var(--pink)}
+.lead{color:var(--muted);max-width:60ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:8px;flex-wrap:wrap;padding-block:12px;border-bottom:1px solid var(--line);margin-bottom:24px}
+nav.tabs a{text-decoration:none;color:var(--ink);font-weight:700;font-size:.9rem;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper)}
+nav.tabs a:hover,nav.tabs a:focus-visible{border-color:var(--pink);color:var(--pink);outline:none}
+.score{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;color:var(--blue);align-self:center}
+section{margin-block:40px}
+section>h2{font-size:clamp(1.5rem,4vw,2.1rem);margin-bottom:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.formula{display:flex;gap:10px;align-items:flex-start}
+.sign{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.2rem;border:2px solid var(--pink);color:var(--pink)}
+.formula div{min-width:0}
+.formula b{color:var(--pink)}
+.ex{color:var(--muted);font-size:.93rem}
+.ex i{color:var(--ink);font-style:normal;font-weight:600}
+mark{background:var(--pink-soft);color:var(--pink);font-weight:800;padding:0 4px;border-radius:4px}
+mark.b{background:var(--blue-soft);color:var(--blue)}
+/* timeline */
+.tl{overflow-x:auto}
+.tl svg{display:block;min-width:520px;width:100%;height:auto}
+.rules{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:12px}
+.rule h3{font-size:1.1rem;margin-bottom:6px}
+.tip{border-left:4px solid var(--blue);background:var(--blue-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td:nth-child(3){color:var(--pink);font-weight:800}
+.scroll{overflow-x:auto}
+/* exercises */
+.exercise{margin-top:16px}
+.exercise h3{font-size:1.25rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font-family:var(--body);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--paper);background:var(--pink);padding:2px 8px;border-radius:999px}
+.tag.b{background:var(--blue)}
+.q{padding-block:14px;border-bottom:1px dashed var(--line)}
+.q:last-of-type{border-bottom:0}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer}
+.opt{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:6px 14px;font-weight:700}
+.opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--blue);outline:none}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{font-size:.92rem;margin-top:8px;padding:8px 12px;border-radius:8px}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fill{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fill input{font:inherit;padding:6px 10px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.fill input:focus{outline:none;border-color:var(--blue)}
+.btn{border:0;border-radius:10px;padding:8px 16px;font-weight:800;background:var(--pink);color:var(--paper)}
+.btn.ghost{background:transparent;color:var(--pink);border:2px solid var(--pink)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.result{font-weight:800;font-variant-numeric:tabular-nums}
+/* vocab */
+.vocab{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.flip{perspective:800px;height:110px;border:0;background:none;padding:0;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .k{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.flip .k{transform:rotateY(180deg);background:var(--blue-soft);color:var(--blue);font-weight:800}
+.flip .f strong{font-size:1.02rem}
+.flip .f small,.flip .k small{color:var(--muted);font-weight:600;font-size:.78rem}
+.flip u{text-decoration-color:var(--pink);text-decoration-thickness:3px;text-underline-offset:3px}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.path span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:.88rem;font-weight:700}
+.path span b{color:var(--pink)}
+.path i{color:var(--muted);font-style:normal}
+.say{border:0;background:none;color:var(--blue);font-weight:800;padding:0;margin-left:4px}
+footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:48px}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
 </style>
 </head>
 <body>
-<div id="app">
-  <header class="top">
-    <div class="avatar" id="avatar" aria-hidden="true">?</div>
-    <div class="who">
-      <div class="name" id="cname">Chat Espejo</div>
-      <div class="status" id="cstatus">Cargando…</div>
-    </div>
-    <button class="icon" id="btnSettings" type="button" aria-label="Ajustes">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-    </button>
-  </header>
-  <div class="banner" id="banner" hidden><span id="bannerText"></span><button class="icon" id="bannerClose" type="button" aria-label="Cerrar aviso"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></div>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Inglés · Clase de repaso</div>
+  <h1><em>Past Perfect</em> vs Past Simple y vocabulario de trabajo</h1>
+  <p class="lead">Leé la teoría, mirá los ejemplos y después hacé los ejercicios. Cada respuesta te dice si está bien y por qué. Tocá las tarjetas de vocabulario para ver la traducción.</p>
+</header>
 
-  <div class="scroll" id="scroll">
-    <section class="setup" id="setup" hidden>
-      <h1>Chat Espejo</h1>
-      <div class="group">
-        <span class="lbl">¿Quién sos?</span>
-        <div class="pick">
-          <button class="person" type="button" data-who="juan" aria-pressed="false"><span class="avatar">J</span>Soy Juan</button>
-          <button class="person" type="button" data-who="marti" aria-pressed="false"><span class="avatar">M</span>Soy Marti</button>
-        </div>
-      </div>
-      <div class="group">
-        <label class="lbl" for="keyIn">Clave del chat</label>
-        <input class="txt" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Una frase, igual en los dos celulares">
-        <p>Inventen una frase (por ejemplo: pelota azul 77) y escríbanla igual en los dos celulares. Se pone una sola vez. Con esa clave los mensajes viajan cifrados y nadie más los puede leer.</p>
-      </div>
-      <div class="btnrow"><button class="btn" id="btnEnter" type="button" disabled>Entrar</button><button class="btn sec" id="btnBack" type="button" hidden>Volver</button></div>
-    </section>
-    <div class="msgs" id="msgs"></div>
+<nav class="tabs" aria-label="Secciones">
+  <a href="#teoria">Past Perfect</a>
+  <a href="#vs">vs Past Simple</a>
+  <a href="#vocab">Vocabulario</a>
+  <a href="#ejercicios">Ejercicios</a>
+  <span class="score" id="score">0 / 0</span>
+</nav>
+
+<section id="teoria">
+  <h2>Past Perfect: la estructura</h2>
+  <p>Lo usamos para una acción que pasó <strong>antes</strong> de otra acción en el pasado. Es "el pasado del pasado".</p>
+  <div class="grid">
+    <div class="card formula"><span class="sign">+</span><div>
+      Subject + <b>had</b> + verbo en <b>3ª columna</b>
+      <div class="ex"><i>She had finished her CV.</i><br>Ella había terminado su CV.</div></div></div>
+    <div class="card formula"><span class="sign">−</span><div>
+      Subject + <b>hadn't</b> + verbo 3ª col.
+      <div class="ex"><i>They hadn't signed the contract.</i><br>No habían firmado el contrato.</div></div></div>
+    <div class="card formula"><span class="sign">?</span><div>
+      <b>Had</b> + subject + verbo 3ª col.?
+      <div class="ex"><i>Had you worked as a waiter?</i><br>¿Habías trabajado de mesero?<br>Yes, I had. / No, I hadn't.</div></div></div>
+  </div>
+  <p class="tip"><strong>Ojo:</strong> <em>had</em> es igual para todos: I, you, he, she, it, we, they. La forma corta es <strong>'d</strong>: <em>I'd lost my job</em> = <em>I had lost my job</em>.</p>
+
+  <h3 style="margin-top:24px">Verbos de la 3ª columna que vas a usar</h3>
+  <div class="card scroll" style="margin-top:8px">
+    <table>
+      <thead><tr><th>Verbo</th><th>Past simple</th><th>Past participle</th><th>Español</th></tr></thead>
+      <tbody id="verbs"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="vs">
+  <h2>Past Perfect vs Past Simple</h2>
+  <p>Cuando hay dos acciones en el pasado, la que pasó <strong>primero</strong> va en Past Perfect y la que pasó <strong>después</strong> en Past Simple.</p>
+  <div class="card tl" role="img" aria-label="Línea de tiempo: primero had already started, después I arrived, luego ahora">
+    <svg viewBox="0 0 600 150">
+      <line x1="20" y1="80" x2="580" y2="80" stroke="var(--muted)" stroke-width="3"/>
+      <polygon points="580,72 596,80 580,88" fill="var(--muted)"/>
+      <circle cx="170" cy="80" r="12" fill="var(--pink)"/>
+      <circle cx="380" cy="80" r="12" fill="var(--blue)"/>
+      <text x="170" y="40" text-anchor="middle" font-weight="800" fill="var(--pink)" font-size="15">① PAST PERFECT</text>
+      <text x="170" y="120" text-anchor="middle" fill="var(--ink)" font-size="15">the interview had started</text>
+      <text x="380" y="40" text-anchor="middle" font-weight="800" fill="var(--blue)" font-size="15">② PAST SIMPLE</text>
+      <text x="380" y="120" text-anchor="middle" fill="var(--ink)" font-size="15">I arrived</text>
+      <text x="560" y="120" text-anchor="end" fill="var(--muted)" font-size="14">NOW</text>
+    </svg>
+    <p class="ex" style="margin:8px 0 0"><i>When I arrived, the interview had started.</i> = Cuando llegué, la entrevista ya había empezado (empezó antes de que yo llegara).</p>
   </div>
 
-  <footer class="composer" id="composer" hidden>
-    <button class="icon" id="btnAttach" type="button" aria-label="Mandar foto">
-      <svg viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z"/></svg>
-    </button>
-    <input type="file" id="file" accept="image/*" multiple hidden>
-    <div class="field" id="field"><textarea id="text" rows="1" placeholder="Mensaje" aria-label="Mensaje" enterkeyhint="send"></textarea></div>
-    <div class="rec" id="rec" hidden>
-      <button class="icon" id="recCancel" type="button" aria-label="Cancelar audio"><svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-      <i class="dot"></i><time id="recTime">0:00</time><span>Grabando audio…</span>
+  <div class="rules">
+    <div class="card rule"><h3><mark>After</mark> → Past Perfect</h3>
+      <p class="ex">Lo que va después de <em>after</em> pasó primero.<br><i>After I <mark>had written</mark> my CV, I applied for the job.</i></p></div>
+    <div class="card rule"><h3><mark class="b">Before</mark> → Past Simple</h3>
+      <p class="ex">Después de <em>before</em> va la acción posterior.<br><i>Before I <mark class="b">went</mark> to the interview, I had prepared a lot.</i></p></div>
+    <div class="card rule"><h3><mark class="b">When</mark> → Past Simple</h3>
+      <p class="ex">Después de <em>when</em> va Past Simple; la otra parte puede ir en Past Perfect.<br><i>When she <mark class="b">called</mark>, I had already accepted the offer.</i></p></div>
+  </div>
+  <p class="tip"><strong>Cambia el significado:</strong> <em>When I arrived, the meeting <u>started</u>.</em> (empezó en el momento que llegué) vs <em>When I arrived, the meeting <u>had started</u>.</em> (ya había empezado antes). Palabras que suelen ir con Past Perfect: <strong>already, just, never… before, by the time</strong>.</p>
+</section>
+
+<section id="vocab">
+  <h2>Vocabulario de trabajo</h2>
+  <p>Tocá cada tarjeta para darla vuelta. Con 🔊 escuchás la pronunciación. La palabra subrayada es el verbo que tenés que recordar.</p>
+  <h3 style="margin-top:16px;font-size:1.1rem">Palabras y expresiones</h3>
+  <div class="vocab" id="words" style="margin-top:8px"></div>
+  <h3 style="margin-top:24px;font-size:1.1rem">Collocations: verbo + trabajo</h3>
+  <div class="vocab" id="colls" style="margin-top:8px"></div>
+  <div class="card" style="margin-top:16px">
+    <h3 style="font-size:1.1rem">El camino de un trabajo, en orden</h3>
+    <div class="path">
+      <span><b>look</b> for a job</span><i>→</i><span><b>write</b> a CV</span><i>→</i><span><b>apply</b> for a job vacancy</span><i>→</i><span><b>prepare</b> for a job interview</span><i>→</i><span>they <b>interview</b> you</span><i>→</i><span>they <b>offer</b> you a job</span><i>→</i><span><b>accept</b> the job offer</span><i>→</i><span><b>sign</b> a contract</span><i>→</i><span><b>get</b> a job</span><i>→</i><span>they <b>train</b> you</span><i>→</i><span><b>get</b> work experience</span>
     </div>
-    <button class="round" id="btnMain" type="button" aria-label="Grabar audio"></button>
-  </footer>
+  </div>
+</section>
+
+<section id="ejercicios">
+  <h2>Ejercicios</h2>
+  <p>Cuatro ejercicios, de lo más fácil a lo más difícil. Podés reiniciar cada uno las veces que quieras.</p>
+  <div id="exercises"></div>
+</section>
+
+<footer>Hecho para practicar · Past Perfect, Past Simple y Work vocabulary</footer>
 </div>
 
-<dialog id="settings">
-  <div class="panel">
-    <header><h2>Ajustes</h2><button class="icon" id="closeSettings" type="button" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></header>
-    <label class="switch"><input type="checkbox" id="mirror" checked> <span>Mis mensajes a la izquierda y los del otro a la derecha (modo espejo)</span></label>
-    <hr>
-    <div class="group">
-      <p id="whoInfo"></p>
-      <div class="btnrow"><button class="btn sec" id="btnSwitch" type="button">Cambiar</button></div>
-    </div>
-    <div class="group">
-      <span class="lbl">Clave del chat</span>
-      <div class="keybox" id="keyShow">-</div>
-      <p>Tiene que ser exactamente la misma en los dos celulares. Si no se ven los mensajes, lo primero es comparar esto.</p>
-      <div class="btnrow"><button class="btn sec" id="btnKey" type="button">Cambiar clave</button></div>
-    </div>
-    <div class="group">
-      <span class="lbl">Estado</span>
-      <p id="diag"></p>
-    </div>
-    <div class="btnrow"><button class="btn danger" id="btnClear" type="button">Borrar los mensajes</button></div>
-    <p>Los mensajes se guardan en este celular y pasan por un buzón en internet (ntfy.sh), cifrados con la clave. El buzón guarda los mensajes 12 horas y las fotos y audios 3 horas, así que el otro tiene que abrir la página dentro de ese tiempo.</p>
-  </div>
-</dialog>
-
-<div class="viewer" id="viewer" hidden><img id="viewerImg" alt="Foto ampliada"></div>
-<div class="toast" id="toast" role="status" hidden></div>
-
 <script>
-"use strict";
-const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const RELAY=String(window.CHAT_RELAY||"https://ntfy.sh").replace(/\/+$/,"");
-const PEOPLE={juan:"Juan",marti:"Marti"};
-const MAX_TEXT_BYTES=1200; // el buzón acepta mensajes de hasta 4096 bytes; el texto se cifra y crece un tercio
-const ICON={
-  mic:'<svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"/></svg>',
-  send:'<svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10.2 15 12 3.4 13.8z"/></svg>',
-  play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
-  pause:'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
-  pending:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Pendiente"><circle cx="9" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 3.6V6l1.8 1.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
-  sent:'<svg class="tk" viewBox="0 0 18 12" role="img" aria-label="Enviado"><path d="M4 6.5l3.2 3.2L14 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  read:'<svg class="tk read" viewBox="0 0 18 12" role="img" aria-label="Leído"><path d="M1 6.5l3.2 3.2L11 2.5M7.4 9.7 14.2 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  failed:'<svg class="tk fail" viewBox="0 0 18 12" role="img" aria-label="No se pudo enviar"><circle cx="9" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 3.4v3.2M9 8.5v.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
-};
-const enc=new TextEncoder(), dec=new TextDecoder();
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
-const normKey=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); // sin tildes, mayúsculas ni signos: el teclado del celular no puede arruinar la clave
+const VERBS=[["be","was / were","been","ser / estar"],["go","went","gone","ir"],["do","did","done","hacer"],["have","had","had","tener"],["get","got","got / gotten","conseguir"],["lose","lost","lost","perder"],["write","wrote","written","escribir"],["leave","left","left","irse / dejar"],["take","took","taken","tomar"],["give","gave","given","dar"],["see","saw","seen","ver"],["eat","ate","eaten","comer"],["begin","began","begun","empezar"],["find","found","found","encontrar"],["meet","met","met","conocer"],["forget","forgot","forgotten","olvidar"],["apply","applied","applied","postularse (regular)"],["work","worked","worked","trabajar (regular)"],["sign","signed","signed","firmar (regular)"]];
+document.getElementById("verbs").innerHTML=VERBS.map(v=>`<tr><td>${v[0]}</td><td>${v[1]}</td><td>${v[2]}</td><td>${v[3]}</td></tr>`).join("");
 
-// ---------- estado ----------
-let who=LS.get("who",null);if(!PEOPLE[who])who=null;
-let secret=normKey(LS.get("secret",""));if(secret.length<4)secret="";
-let settings=Object.assign({mirror:true},LS.get("settings",{}));
-const msgs=[], byId=new Map(), els=new Map(), urls=new Map();
-let crypt=null, sinceTs=0, otherSeen=0, link="off", lastErr="", editing=false, unseen=0, actx=null, switchArm=0, clearArm=0;
-const other=()=>who==="juan"?"marti":"juan";
-const otherName=()=>PEOPLE[other()];
-const ready=()=>!!(who&&secret&&!editing);
+const WORDS=[["reckon","creer, suponer · contar / calcular","I reckon he'll get the job."],["tiring","cansador, agotador","Working long hours is tiring."],["give it a go","hacé la prueba, intentalo","You've never been a waiter? Give it a go!"],["handmade goods seller","vendedor de productos hechos a mano","She is a handmade goods seller."],["waiter","mesero / mozo","The waiter had worked there for years."]];
+const COLLS=[["prepare","for a job interview","prepararse para una entrevista"],["interview","someone for a job","entrevistar a alguien para un trabajo"],["train","someone to do a job","capacitar a alguien"],["get","a job","conseguir un trabajo"],["accept","a job offer","aceptar una oferta de trabajo"],["offer","someone a job","ofrecerle un trabajo a alguien"],["employ","someone to do a job","contratar / emplear a alguien"],["lose","your job","perder tu trabajo"],["apply","for a job vacancy","postularse a una vacante"],["write","a CV","escribir un currículum"],["look","for a job","buscar trabajo"],["work","long hours","trabajar muchas horas"],["sign","a contract","firmar un contrato"],["get","work experience","conseguir experiencia laboral"],["get on","well with colleagues","llevarse bien con los compañeros"],["get","time off","conseguir días libres"]];
+const canSpeak="speechSynthesis" in window;
+function say(t){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.9;speechSynthesis.speak(u)}
+function card(front,sub,back,speak){const b=document.createElement("div");b.className="flip";b.tabIndex=0;b.setAttribute("role","button");
+  b.innerHTML=`<div class="in"><div class="f"><strong>${front}</strong><small>${sub}</small></div><div class="k">${back}</div></div>`;
+  const t=()=>b.classList.toggle("on");b.onclick=e=>{if(e.target.closest(".say"))return;t()};b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();t()}};
+  if(canSpeak){const s=document.createElement("button");s.className="say";s.type="button";s.textContent="🔊";s.setAttribute("aria-label","Escuchar "+speak);s.onclick=()=>say(speak);b.querySelector(".f strong").append(s)}
+  return b}
+WORDS.forEach(w=>document.getElementById("words").append(card(w[0],"tocá para traducir",`${w[1]}<small>${w[2]}</small>`,w[0]+". "+w[2])));
+COLLS.forEach(c=>document.getElementById("colls").append(card(`<u>${c[0]}</u> ${c[1]}`,"tocá para traducir",c[2],c[0]+" "+c[1])));
 
-// ---------- almacenamiento: una base por persona, para no mezclar historiales ----------
-const db=(()=>{let p;
-  const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("chat-espejo-"+who,1);r.onupgradeneeded=()=>r.result.createObjectStore("msgs",{keyPath:"id"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
-  const run=(mode,fn)=>open().then(d=>new Promise((res,rej)=>{const t=d.transaction("msgs",mode),q=fn(t.objectStore("msgs"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
-  return{all:()=>run("readonly",s=>s.getAll()),put:m=>run("readwrite",s=>s.put(m)).catch(()=>{}),clear:()=>run("readwrite",s=>s.clear()).catch(()=>{})}})();
+// ---------- ejercicios ----------
+const EX=[
+ {title:"¿Past Simple o Past Perfect?",tag:"Gramática",type:"mc",intro:"Elegí la forma correcta.",items:[
+  ["When I arrived at the office, the meeting ___.",["had already started","already started"],0,"Empezó antes de que llegaras → Past Perfect."],
+  ["After she ___ the contract, she started work.",["signed","had signed"],1,"Después de after va Past Perfect: primero firmó."],
+  ["Before he ___ for the job, he had written a new CV.",["applied","had applied"],0,"Después de before va Past Simple."],
+  ["I ___ a waiter before I became a handmade goods seller.",["had been","have been"],0,"Primero fue mesero → had been."],
+  ["They offered me the job when I ___ the interview.",["had finished","finish"],0,"Terminé la entrevista antes de la oferta → had finished."],
+  ["Yesterday I ___ a job offer.",["had accepted","accepted"],1,"Una sola acción en el pasado → Past Simple."],
+  ["By the time I got to the restaurant, the waiter ___ home.",["went","had gone"],1,"By the time + Past Perfect para lo que pasó antes."],
+  ["She lost her job because she ___ well with her colleagues.",["hadn't got on","didn't got on"],0,"Primero no se llevaba bien, después la echaron. Negativo: hadn't + participio."]]},
+ {title:"Completá con had + participio",tag:"Gramática",type:"fill",intro:"Escribí la forma del Past Perfect del verbo entre paréntesis. Fijate si es afirmativa (+), negativa (−) o pregunta (?).",items:[
+  ["(+) She ___ (work) long hours before she got time off.",["had worked","'d worked"],"had + worked (regular)."],
+  ["(−) I ___ (write) a CV before that interview.",["hadn't written","had not written"],"Negativo: hadn't + written (write-wrote-written)."],
+  ["(?) ___ (you / get) work experience before you applied?",["had you got","had you gotten"],"Pregunta: Had + you + got/gotten."],
+  ["(+) They ___ (lose) their jobs before the company closed.",["had lost","'d lost"],"lose-lost-lost."],
+  ["(−) He ___ (sign) the contract when they called him.",["hadn't signed","had not signed"],"Negativo: hadn't signed."],
+  ["(+) We ___ (prepare) for the job interview for weeks.",["had prepared","'d prepared"],"prepare es regular: prepared."]]},
+ {title:"Elegí el verbo correcto",tag:"Vocabulario",type:"mc",blue:true,intro:"Completá la collocation de trabajo.",items:[
+  ["___ for a job vacancy",["apply","sign","get"],0,"apply for a job vacancy = postularse a una vacante."],
+  ["___ a contract",["write","sign","offer"],1,"sign a contract = firmar un contrato."],
+  ["___ on well with colleagues",["get","look","work"],0,"get on well with = llevarse bien con."],
+  ["___ a CV",["prepare","write","train"],1,"write a CV = escribir un currículum."],
+  ["___ for a job",["look","lose","accept"],0,"look for = buscar."],
+  ["___ someone to do a job",["train","apply","get"],0,"train someone = capacitar a alguien."],
+  ["___ time off",["work","get","offer"],1,"get time off = conseguir días libres."],
+  ["___ long hours",["work","sign","employ"],0,"work long hours = trabajar muchas horas."],
+  ["\"Working at night is very ___.\"",["tiring","reckon","waiter"],0,"tiring = cansador."],
+  ["\"I ___ she will accept the offer.\" (creo)",["reckon","give it a go","train"],0,"reckon = creer, suponer."]]},
+ {title:"Desafío final: todo junto",tag:"Mix",type:"mc",intro:"Gramática y vocabulario en la misma frase.",items:[
+  ["After I ___ for the job vacancy, they interviewed me.",["had applied","had apply","applied had"],0,"had + participio (applied)."],
+  ["___ she ever worked as a waiter before?",["Has","Had","Did"],1,"Pregunta en Past Perfect: Had + sujeto + participio."],
+  ["When the manager called, I ___ the job offer.",["had already accepted","already had accept","have accepted"],0,"Ya había aceptado antes de la llamada."],
+  ["He was tired because he ___ long hours all week.",["had worked","has work","had working"],0,"Primero trabajó, después estaba cansado."],
+  ["They ___ me a job before I finished university.",["had offer","had offered","offered had"],1,"offer es regular: offered."],
+  ["The company ___ her to do the job before she started.",["had trained","had train","trained had"],0,"train → trained."]]}
+];
+const scoreEl=document.getElementById("score");
+const state=EX.map(e=>({done:0,ok:0,n:e.items.length}));
+function updScore(){const ok=state.reduce((a,s)=>a+s.ok,0),n=state.reduce((a,s)=>a+s.n,0);scoreEl.textContent=`★ ${ok} / ${n}`}
+const norm=s=>s.toLowerCase().replace(/[’`]/g,"'").replace(/\s+/g," ").replace(/[.?!]/g,"").trim();
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-// ---------- cifrado: todo lo que pasa por el buzón va cifrado con la clave compartida ----------
-function toB64u(bytes){const u=new Uint8Array(bytes);let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
-function fromB64u(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
-async function deriveKeys(pass){
-  const base=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveBits"]);
-  const bits=new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:enc.encode("chat-espejo/v2"),iterations:150000},base,512));
-  const aes=await crypto.subtle.importKey("raw",bits.slice(0,32),"AES-GCM",false,["encrypt","decrypt"]);
-  const hm=await crypto.subtle.importKey("raw",bits.slice(32),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
-  const topic=async p=>"ce2-"+[...new Uint8Array(await crypto.subtle.sign("HMAC",hm,enc.encode("inbox:"+p)))].slice(0,20).map(x=>x.toString(16).padStart(2,"0")).join("");
-  return{aes,topics:{juan:await topic("juan"),marti:await topic("marti")}}}
-async function seal(bytes){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},crypt.aes,bytes)),out=new Uint8Array(12+ct.length);out.set(iv);out.set(ct,12);return out}
-async function unseal(bytes){const u=new Uint8Array(bytes);return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:u.slice(0,12)},crypt.aes,u.slice(12)))}
-
-// ---------- utilidades de interfaz ----------
-let toastTimer;
-function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.hidden=true,3200)}
-const fmtTime=ts=>new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
-const fmtDur=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
-const dayKey=ts=>new Date(ts).toDateString();
-function dayLabel(ts){const d=new Date(ts),t=new Date();if(d.toDateString()===t.toDateString())return"Hoy";t.setDate(t.getDate()-1);if(d.toDateString()===t.toDateString())return"Ayer";
-  return d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:d.getFullYear()===new Date().getFullYear()?undefined:"numeric"})}
-function seenLabel(ts){const d=new Date(ts),t=new Date();if(d.toDateString()===t.toDateString())return fmtTime(ts);t.setDate(t.getDate()-1);return(d.toDateString()===t.toDateString()?"ayer ":d.toLocaleDateString("es-AR",{day:"numeric",month:"numeric"})+" ")+fmtTime(ts)}
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
-function linkify(node,text){const re=/https?:\/\/[^\s<>"]+/g;let last=0,m;
-  while((m=re.exec(text))){if(m.index>last)node.append(text.slice(last,m.index));const a=el("a",null,m[0]);a.href=m[0];a.target="_blank";a.rel="noopener noreferrer";node.append(a);last=re.lastIndex}
-  if(last<text.length)node.append(text.slice(last))}
-function urlFor(m){if(!urls.has(m.id))urls.set(m.id,URL.createObjectURL(m.blob));return urls.get(m.id)}
-const scroller=$("#scroll");
-const nearBottom=()=>scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<160;
-const toBottom=()=>requestAnimationFrame(()=>scroller.scrollTop=scroller.scrollHeight);
-const errLabel=e=>e&&e.status?"HTTP "+e.status:"sin red";
-
-// ---------- dibujar mensajes ----------
-function sideOf(m){return (m.from==="me")===settings.mirror?"left":"right"}
-function bubble(m,prev){
-  const cont=prev&&prev.from===m.from&&dayKey(prev.ts)===dayKey(m.ts)&&m.ts-prev.ts<180000;
-  const row=el("div",`row ${m.from==="me"?"mine":"theirs"} ${sideOf(m)}${cont?" cont":""}`);
-  const b=el("div","bubble"),meta=el("span","meta",fmtTime(m.ts));
-  if(m.from==="me"){const tk=el("span","ticks");tk.innerHTML=ICON[m.status]||ICON.pending;meta.append(tk)}
-  if(m.missing){const t=el("div","text missing",m.kind==="image"?"Foto no disponible (el buzón la borra a las 3 horas)":"Audio no disponible (el buzón lo borra a las 3 horas)");t.append(meta);b.append(t)}
-  else if(m.kind==="image"){b.classList.add("media");const img=new Image();img.className="photo";img.alt="Foto";img.decoding="async";img.src=urlFor(m);
-    if(m.w&&m.h)img.style.aspectRatio=m.w+" / "+m.h;img.onclick=()=>openViewer(img.src);b.append(img,meta)}
-  else if(m.kind==="audio"){b.append(voicePlayer(m),meta)}
-  else{const t=el("div","text");linkify(t,m.text||"");t.append(meta);b.append(t)}
-  row.append(b);row.dataset.id=m.id;els.set(m.id,row);return row}
-let players=[];
-function voicePlayer(m){
-  const w=el("div","voice"),btn=el("button","play"),track=el("div","track"),bar=el("i"),fill=el("b"),time=el("span","vtime",fmtDur(m.dur));
-  btn.type="button";btn.innerHTML=ICON.play;btn.setAttribute("aria-label","Reproducir audio");bar.append(fill);track.append(bar);
-  let a=null;const total=()=>a&&isFinite(a.duration)&&a.duration>0?a.duration:(m.dur||1);
-  btn.onclick=()=>{if(!a){a=new Audio(urlFor(m));players.push(a);
-      a.ontimeupdate=()=>{fill.style.width=Math.min(100,a.currentTime/total()*100)+"%";time.textContent=fmtDur(a.currentTime)};
-      a.onplay=()=>{btn.innerHTML=ICON.pause;btn.setAttribute("aria-label","Pausar audio")};
-      a.onpause=()=>{btn.innerHTML=ICON.play;btn.setAttribute("aria-label","Reproducir audio")};
-      a.onended=()=>{fill.style.width="0";time.textContent=fmtDur(m.dur)}}
-    if(a.paused){players.forEach(p=>p!==a&&p.pause());a.play().catch(()=>toast("No se pudo reproducir este audio en este celular"))}else a.pause()};
-  track.onclick=e=>{if(!a||!isFinite(a.duration))return;const r=track.getBoundingClientRect();a.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*a.duration};
-  w.append(btn,track,time);return w}
-function renderAll(){
-  const box=$("#msgs");box.innerHTML="";els.clear();
-  const ok=ready();
-  $("#setup").hidden=ok;$("#composer").hidden=!ok;
-  if(!ok){updateHeader();return}
-  box.append(el("div","note",settings.mirror?`Tus mensajes van a la izquierda y los de ${otherName()} a la derecha.`:`Tus mensajes van a la derecha y los de ${otherName()} a la izquierda.`));
-  if(!msgs.length)box.append(el("div","note","Todavía no hay mensajes. Mandá el primero. Si el otro no ve nada, comparen la clave en Ajustes."));
-  let prev=null;for(const m of msgs){if(!prev||dayKey(prev.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));box.append(bubble(m,prev));prev=m}
-  updateHeader();toBottom()}
-function addMsg(m){
-  const atEnd=nearBottom(),last=msgs[msgs.length-1];
-  msgs.push(m);byId.set(m.id,m);db.put(m);
-  if(last&&m.ts<last.ts){msgs.sort((a,b)=>a.ts-b.ts);renderAll();return} // llegó tarde un mensaje más viejo
-  const box=$("#msgs");
-  if(msgs.length===1){renderAll();return}
-  if(!last||dayKey(last.ts)!==dayKey(m.ts))box.append(el("div","day",dayLabel(m.ts)));
-  box.append(bubble(m,last));if(atEnd||m.from==="me")toBottom()}
-const RANK={pending:0,sent:1,read:2};
-function setStatus(id,st){const m=byId.get(id);if(!m||m.from!=="me")return;if(st!=="failed"&&(RANK[st]<=RANK[m.status]))return;
-  m.status=st;db.put(m);const r=els.get(id),tk=r&&r.querySelector(".ticks");if(tk)tk.innerHTML=ICON[st]}
-function openViewer(src){$("#viewerImg").src=src;$("#viewer").hidden=false}
-$("#viewer").onclick=()=>$("#viewer").hidden=true;
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#viewer").hidden=true});
-
-// ---------- cabecera y estado ----------
-function setLink(s){if(link!==s){link=s;updateHeader()}}
-function updateHeader(){
-  $("#cname").textContent=who?otherName():"Chat Espejo";
-  $("#avatar").textContent=who?otherName().charAt(0):"?";
-  const st=$("#cstatus");let t,on=false;
-  if(!who)t="Elegí quién sos para empezar";
-  else if(!secret||editing)t="Poné la clave del chat";
-  else if(!crypt)t=lastErr||"Preparando…";
-  else if(link==="on"){on=true;t="Conectado"+(otherSeen?" · últ. vez "+seenLabel(otherSeen):" · sin señales de "+otherName()+" todavía")}
-  else if(link==="connecting")t="Conectando…";
-  else t="Sin conexión · reintentando"+(lastErr?" ("+lastErr+")":"");
-  st.textContent=t;st.classList.toggle("on",on);
-  if(who){const pend=msgs.filter(m=>m.from==="me"&&m.status==="pending").length;
-    $("#whoInfo").textContent=`En este celular sos ${PEOPLE[who]}.`;if(!switchArm)$("#btnSwitch").textContent=`Cambiar: soy ${otherName()}`;
-    $("#keyShow").textContent=secret||"-";
-    $("#diag").textContent=`Buzón ${RELAY.replace(/^https?:\/\//,"")}: ${link==="on"?"conectado":"sin conexión"}${lastErr?" · último error: "+lastErr:""}${pend?` · ${pend} sin enviar`:""}.`}}
-
-// ---------- buzón en internet (ntfy): cada persona tiene el suyo y el otro le deja los mensajes ahí ----------
-async function httpFail(r){const e=new Error("HTTP "+r.status);e.status=r.status;e.retry=+r.headers.get("Retry-After")||0;return e}
-async function postText(topic,bytes){const r=await fetch(`${RELAY}/${topic}`,{method:"POST",body:toB64u(bytes)});if(!r.ok)throw await httpFail(r)}
-async function putFile(topic,metaBytes,fileBytes){const r=await fetch(`${RELAY}/${topic}`,{method:"PUT",headers:{"Filename":"m.bin","Message":toB64u(metaBytes)},body:fileBytes});if(!r.ok)throw await httpFail(r)}
-async function deliverMsg(m){
-  const topic=crypt.topics[other()],env={t:"msg",id:m.id,ts:m.ts,kind:m.kind};
-  if(m.kind==="text"){env.text=m.text;await postText(topic,await seal(enc.encode(JSON.stringify(env))))}
-  else{env.mime=m.mime;env.dur=m.dur||0;env.w=m.w||0;env.h=m.h||0;
-    await putFile(topic,await seal(enc.encode(JSON.stringify(env))),await seal(new Uint8Array(await m.blob.arrayBuffer())))}}
-let pumping=false, retryTimer=null, warned429=false;
-async function pump(){
-  if(pumping||!crypt)return;pumping=true;
-  try{for(;;){
-    const m=msgs.find(x=>x.from==="me"&&x.status==="pending");if(!m)break;
-    try{await deliverMsg(m);setStatus(m.id,"sent");warned429=false;if(lastErr){lastErr="";updateHeader()}}
-    catch(e){
-      if(e.status>=400&&e.status<500&&e.status!==429&&e.status!==408){setStatus(m.id,"failed");lastErr=errLabel(e);continue} // el buzón lo rechazó: no sirve reintentar
-      if(e.status===429&&!warned429){warned429=true;toast("El buzón pide esperar un poco. Reintento solo.")}
-      lastErr=errLabel(e);updateHeader();clearTimeout(retryTimer);retryTimer=setTimeout(pump,e.status===429?Math.max(10000,e.retry*1000):4000);break}
-  }}finally{pumping=false;updateHeader()}}
-
-let readTimer=null, readBusy=false;
-function queueRead(){if(document.hidden||readTimer)return;readTimer=setTimeout(flushReads,1200)}
-async function flushReads(){
-  readTimer=null;if(readBusy||document.hidden||!crypt)return;
-  const ids=msgs.filter(m=>m.from==="them"&&!m.seen).map(m=>m.id).slice(0,60);if(!ids.length)return;
-  readBusy=true;
-  try{await postText(crypt.topics[other()],await seal(enc.encode(JSON.stringify({t:"read",ids}))));ids.forEach(id=>{const m=byId.get(id);if(m){m.seen=true;db.put(m)}});if(msgs.some(m=>m.from==="them"&&!m.seen))queueRead()}
-  catch(e){readTimer=setTimeout(flushReads,e.status===429?15000:6000)}
-  finally{readBusy=false}}
-
-async function handleEvent(ev){
-  if(typeof ev.message!=="string"||!ev.message)return;
-  let env;
-  try{env=JSON.parse(dec.decode(await unseal(fromB64u(ev.message))))}catch(e){lastErr="mensaje ilegible";updateHeader();return}
-  if(ev.time*1000>otherSeen){otherSeen=ev.time*1000;LS.set("seen-"+who,otherSeen)}
-  if(env.t==="read"){(Array.isArray(env.ids)?env.ids:[]).forEach(id=>setStatus(id,"read"));updateHeader();return}
-  if(env.t!=="msg"||typeof env.id!=="string"||env.id.length>60||byId.has(env.id))return;
-  const kind=["text","image","audio"].includes(env.kind)?env.kind:null;if(!kind)return;
-  const m={id:env.id,from:"them",kind,ts:Math.min(+env.ts||Date.now(),Date.now()),seen:false};
-  if(kind==="text")m.text=String(env.text||"").slice(0,20000);
-  else{
-    const mime=String(env.mime||"");if(!(kind==="image"?/^image\//:/^audio\//).test(mime))return;
-    m.mime=mime;m.dur=+env.dur||0;m.w=+env.w||0;m.h=+env.h||0;
-    const url=ev.attachment&&ev.attachment.url;
-    if(typeof url==="string"&&url.startsWith(RELAY+"/")){
-      try{const r=await fetch(url);if(!r.ok)throw 0;m.blob=new Blob([await unseal(await r.arrayBuffer())],{type:mime})}catch(e){m.missing=true}
-    }else m.missing=true}
-  addMsg(m);
-  if(Date.now()/1000-ev.time<60){pop();if(document.hidden){unseen++;document.title="("+unseen+") Chat Espejo";try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}}
-  queueRead()}
-
-let ctl=null, lastData=0, backoff=1000, reconTimer=null;
-function stopListen(){clearTimeout(reconTimer);if(ctl){ctl.stopped=true;try{ctl.ac.abort()}catch(e){}ctl=null}}
-async function onLine(line,me){
-  let ev;try{ev=JSON.parse(line)}catch(e){return}
-  if(ev.event==="open"){if(me)me.opened=true;backoff=1000;if(lastErr&&crypt){lastErr=""}setLink("on");return}
-  if(ev.event!=="message")return;
-  try{await handleEvent(ev)}catch(e){}
-  if(ev.time>sinceTs){sinceTs=ev.time;LS.set("since-"+who,sinceTs)}}
-async function pollOnce(){ // plan B si la conexión continua no anda: pregunta por los mensajes nuevos
-  const r=await fetch(`${RELAY}/${crypt.topics[who]}/json?poll=1&since=${sinceTs||"all"}`,{cache:"no-store"});
-  if(!r.ok)throw await httpFail(r);
-  for(const line of(await r.text()).split("\n")){if(line.trim())await onLine(line.trim(),null)}}
-async function listen(){
-  stopListen();if(!crypt||!ready())return;
-  const me={ac:new AbortController(),stopped:false,opened:false};ctl=me;
-  const openTimer=setTimeout(()=>{if(!me.opened)try{me.ac.abort()}catch(e){}},12000);
-  if(link!=="on")setLink("connecting");
-  try{
-    const res=await fetch(`${RELAY}/${crypt.topics[who]}/json?since=${sinceTs||"all"}`,{signal:me.ac.signal,cache:"no-store"});
-    if(!res.ok)throw await httpFail(res);
-    if(!res.body||!res.body.getReader)throw new Error("sin streaming");
-    const reader=res.body.getReader(),td=new TextDecoder();let buf="";lastData=Date.now();
-    for(;;){
-      const{value,done}=await reader.read();if(done)break;
-      lastData=Date.now();buf+=td.decode(value,{stream:true});
-      let i;while((i=buf.indexOf("\n"))>=0){const line=buf.slice(0,i).trim();buf=buf.slice(i+1);if(line)await onLine(line,me)}}
-    throw new Error("cerrado")}
-  catch(e){
-    clearTimeout(openTimer);if(me.stopped)return;
-    ctl=null;lastErr=me.opened&&e.message==="cerrado"?"":errLabel(e);
-    try{await pollOnce();setLink("on");lastErr=""}catch(e2){lastErr=errLabel(e2);setLink("off")}
-    updateHeader();reconTimer=setTimeout(listen,backoff);backoff=Math.min(backoff*2,15000)}}
-setInterval(()=>{if(ctl&&link==="on"&&Date.now()-lastData>70000){try{ctl.ac.abort()}catch(e){}}},10000); // el buzón avisa cada ~30 s; si pasa mucho sin señales, se reconecta
-function wake(){if(!crypt||!ready())return;listen();pump();queueRead()}
-document.addEventListener("visibilitychange",()=>{if(!document.hidden){unseen=0;document.title="Chat Espejo";wake()}});
-window.addEventListener("online",wake);
-window.addEventListener("pageshow",e=>{if(e.persisted)wake()});
-
-// ---------- mandar ----------
-function splitText(text){const out=[];let cur="",bytes=0;
-  for(const ch of text){const b=enc.encode(ch).length;if(bytes+b>MAX_TEXT_BYTES&&cur){out.push(cur);cur="";bytes=0}cur+=ch;bytes+=b}
-  if(cur)out.push(cur);return out}
-function sendText(){const text=ta.value.replace(/\s+$/,"");if(!text.trim())return;
-  ta.value="";autosize();updateMain();const now=Date.now();
-  splitText(text).forEach((part,i)=>addMsg({id:uid(),from:"me",kind:"text",text:part,ts:now+i,status:"pending"}));
-  pump();ta.focus()}
-function sendMedia(kind,blob,extra){addMsg(Object.assign({id:uid(),from:"me",kind,blob,mime:blob.type,ts:Date.now(),status:"pending"},extra));pump()}
-
-// ---------- fotos ----------
-async function prepImage(file){
-  const src=URL.createObjectURL(file);
-  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src});
-    let w=img.naturalWidth,h=img.naturalHeight;const s=Math.min(1,1600/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);
-    const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
-    const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.82));return{blob:blob||file,w,h}}
-  finally{URL.revokeObjectURL(src)}}
-async function sendImages(files){for(const f of files){if(!f.type.startsWith("image/"))continue;
-  try{const{blob,w,h}=await prepImage(f);sendMedia("image",blob,{w,h})}catch(e){toast("No se pudo abrir esa imagen")}}}
-$("#btnAttach").onclick=()=>$("#file").click();
-$("#file").onchange=e=>{sendImages([...e.target.files]);e.target.value=""};
-
-// ---------- notas de voz ----------
-let rec=null;
-async function startRec(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){toast("Este navegador no permite grabar audio");return}
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
-  catch(e){toast("Sin permiso para el micrófono. Activalo en los ajustes del navegador para esta página.");return}
-  const type=["audio/webm;codecs=opus","audio/mp4","audio/ogg;codecs=opus","audio/webm"].find(t=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t));
-  let mr;try{mr=new MediaRecorder(stream,type?{mimeType:type,audioBitsPerSecond:32000}:undefined)}catch(e){mr=new MediaRecorder(stream)}
-  const r={mr,stream,chunks:[],t0:Date.now(),cancel:false};rec=r;
-  mr.ondataavailable=e=>{if(e.data&&e.data.size)r.chunks.push(e.data)};
-  mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());clearInterval(r.timer);rec=null;setRecUI(false);if(r.cancel)return;
-    const dur=(Date.now()-r.t0)/1000;if(dur<1){toast("El audio es muy corto");return}
-    sendMedia("audio",new Blob(r.chunks,{type:(mr.mimeType||type||"audio/webm").split(";")[0]}),{dur})};
-  r.timer=setInterval(()=>{const s=(Date.now()-r.t0)/1000;$("#recTime").textContent=fmtDur(s);if(s>=300)stopRec(false)},250);
-  mr.start(1000);setRecUI(true)}
-function stopRec(cancel){if(!rec)return;rec.cancel=cancel;try{rec.mr.stop()}catch(e){}}
-function setRecUI(on){$("#rec").hidden=!on;$("#field").hidden=on;$("#btnAttach").hidden=on;$("#recTime").textContent="0:00";updateMain()}
-$("#recCancel").onclick=()=>stopRec(true);
-
-// ---------- barra para escribir ----------
-const ta=$("#text");
-function autosize(){ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,124)+"px"}
-function updateMain(){const b=$("#btnMain"),send=!!rec||!!ta.value.trim();b.innerHTML=send?ICON.send:ICON.mic;b.setAttribute("aria-label",rec?"Mandar audio":send?"Mandar mensaje":"Grabar audio")}
-ta.addEventListener("input",()=>{autosize();updateMain()});
-ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(pointer:fine)").matches){e.preventDefault();sendText()}});
-ta.addEventListener("paste",e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])].filter(f=>f.type.startsWith("image/"));if(fs.length){e.preventDefault();sendImages(fs)}});
-$("#btnMain").onclick=()=>{if(rec)stopRec(false);else if(ta.value.trim())sendText();else startRec()};
-
-// ---------- sonido al recibir ----------
-document.addEventListener("pointerdown",()=>{if(!actx)try{actx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}},{once:true});
-function pop(){if(!actx)return;try{const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.frequency.setValueAtTime(620,t);o.frequency.exponentialRampToValueAtTime(980,t+.09);
-  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.22)}catch(e){}}
-
-// ---------- elegir persona y clave ----------
-let pendingWho=who;
-const checkEnter=()=>{$("#btnEnter").disabled=!(pendingWho&&normKey($("#keyIn").value).length>=4)};
-const syncPick=()=>$$(".person").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.who===pendingWho)));
-function showSetup(){pendingWho=who;$("#keyIn").value=secret||"";$("#btnBack").hidden=!(who&&secret);syncPick();checkEnter()}
-$$(".person").forEach(b=>b.onclick=()=>{pendingWho=b.dataset.who;syncPick();checkEnter()});
-$("#keyIn").addEventListener("input",checkEnter);
-$("#keyIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("#btnEnter").disabled)$("#btnEnter").click()});
-$("#btnEnter").onclick=()=>{const k=normKey($("#keyIn").value);if(!pendingWho||k.length<4)return;
-  LS.set("who",pendingWho);LS.set("secret",k);location.reload()}; // se recarga para empezar limpio con la persona y la clave nuevas
-$("#btnBack").onclick=()=>{editing=false;renderAll();wake()};
-
-// ---------- ajustes ----------
-$("#btnSettings").onclick=()=>{updateHeader();$("#settings").showModal()};
-$("#closeSettings").onclick=()=>$("#settings").close();
-$("#settings").addEventListener("click",e=>{if(e.target===$("#settings"))$("#settings").close()});
-$("#mirror").checked=settings.mirror;
-$("#mirror").onchange=e=>{settings.mirror=e.target.checked;LS.set("settings",settings);renderAll()};
-$("#btnKey").onclick=()=>{$("#settings").close();editing=true;stopListen();setLink("off");showSetup();renderAll()};
-$("#btnSwitch").onclick=function(){
-  if(!who){$("#settings").close();return}
-  if(!switchArm){switchArm=Date.now();this.textContent=`Tocá otra vez para ser ${otherName()}`;setTimeout(()=>{switchArm=0;updateHeader()},3000);return}
-  LS.set("who",other());location.reload()};
-$("#btnClear").onclick=function(){if(Date.now()-clearArm>3000){clearArm=Date.now();this.textContent="Tocá otra vez para borrar todo";setTimeout(()=>this.textContent="Borrar los mensajes",3000);return}
-  msgs.length=0;byId.clear();urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();db.clear();renderAll();this.textContent="Borrar los mensajes";clearArm=0;$("#settings").close();toast("Mensajes borrados de este celular")};
-$("#bannerClose").onclick=()=>$("#banner").hidden=true;
-
-// ---------- arranque ----------
-async function start(){
-  if(!who||!secret){showSetup();renderAll();return}
-  sinceTs=LS.get("since-"+who,0);otherSeen=LS.get("seen-"+who,0);
-  try{const all=await db.all();(all||[]).sort((a,b)=>a.ts-b.ts).forEach(m=>{if(m.status==="delivered")m.status="sent";msgs.push(m);byId.set(m.id,m)})}catch(e){}
-  renderAll();
-  try{crypt=await deriveKeys(secret)}catch(e){lastErr="este navegador no permite cifrar (hace falta https)";updateHeader();return}
-  updateHeader();listen();pump();queueRead()}
-updateMain();
-start();
+function render(i){
+  const e=EX[i],box=document.getElementById("ex"+i),s=state[i];s.done=0;s.ok=0;updScore();
+  box.innerHTML=`<h3><span class="tag ${e.blue?"b":""}">${e.tag}</span> ${i+1}. ${e.title}</h3><p class="ex">${e.intro}</p><div class="qs"></div>
+  <div class="bar"><span class="result" aria-live="polite"></span><button class="btn ghost" type="button">Reiniciar</button></div>`;
+  box.querySelector(".btn.ghost").onclick=()=>render(i);
+  const qs=box.querySelector(".qs"),res=box.querySelector(".result");
+  const mark=(good,el,msg)=>{s.done++;if(good)s.ok++;const f=document.createElement("div");f.className="fb "+(good?"ok":"bad");f.textContent=(good?"✔ ¡Bien! ":"✘ ")+msg;el.append(f);
+    res.textContent=`${s.ok} / ${s.n} correctas`+(s.done===s.n?(s.ok===s.n?" · ¡Perfecto! 🎉":s.ok>=s.n*.7?" · ¡Muy bien!":" · Repasá la teoría y probá de nuevo"):"");updScore()};
+  e.items.forEach((it,k)=>{
+    const q=document.createElement("div");q.className="q";
+    if(e.type==="mc"){
+      q.innerHTML=`<p>${it[0].replace("___","<mark>___</mark>")}</p><div class="opts"></div>`;
+      const opts=q.querySelector(".opts");
+      shuffle(it[1].map((t,j)=>[t,j])).forEach(([t,j])=>{const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=t;
+        b.onclick=()=>{opts.querySelectorAll("button").forEach(x=>{x.disabled=true;if(+x.dataset.j===it[2])x.classList.add("ok")});
+          if(j!==it[2])b.classList.add("bad");mark(j===it[2],q,(j===it[2]?"":"Correcta: "+it[1][it[2]]+". ")+it[3])};
+        b.dataset.j=j;opts.append(b)});
+    }else{
+      const id=`f${i}_${k}`;
+      q.innerHTML=`<p><label for="${id}">${it[0].replace(/___/g,"<mark>___</mark>")}</label></p><form class="fill"><input id="${id}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribí tu respuesta"><button class="btn" type="submit">Comprobar</button></form>`;
+      const f=q.querySelector("form"),inp=q.querySelector("input");
+      f.onsubmit=ev=>{ev.preventDefault();if(!inp.value.trim())return;const good=it[1].some(a=>norm(a)===norm(inp.value));inp.disabled=true;f.querySelector("button").disabled=true;
+        inp.style.borderColor=good?"var(--ok)":"var(--bad)";mark(good,q,(good?"":"Correcta: "+it[1][0]+". ")+it[2])};
+    }
+    qs.append(q)});
+}
+const host=document.getElementById("exercises");
+EX.forEach((e,i)=>{const d=document.createElement("div");d.className="card exercise";d.id="ex"+i;host.append(d);render(i)});
 </script>
 </body>
 </html>
